@@ -1,6 +1,11 @@
 #ifndef __RBOOT_PRIVATE_H__
 #define __RBOOT_PRIVATE_H__
 
+//////////////////////////////////////////////////
+// rBoot open source boot loader for ESP8266.
+// richardaburton@gmail.com
+//////////////////////////////////////////////////
+
 typedef int int32;
 typedef unsigned int uint32;
 typedef unsigned char uint8;

@@ -1,3 +1,8 @@
+//////////////////////////////////////////////////
+// rBoot open source boot loader for ESP8266.
+// richardaburton@gmail.com
+//////////////////////////////////////////////////
+
 #include "rboot-private.h"
 
 usercode* NOINLINE call_user_start2(uint32 readpos) {

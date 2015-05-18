@@ -1,6 +1,11 @@
 #ifndef __RBOOT_H__
 #define __RBOOT_H__
 
+//////////////////////////////////////////////////
+// rBoot open source boot loader for ESP8266.
+// richardaburton@gmail.com
+//////////////////////////////////////////////////
+
 #define SECTOR_SIZE 0x1000
 #define BOOT_CONFIG_SECTOR 1
 
