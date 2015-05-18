@@ -99,4 +99,7 @@ Then simply compile and link as you would normally for OTA updates with the SDK
 boot loader, except using the linker scripts you've just prepared rather than
 the ones supplied with the SDK. Remember when building roms to create them as
 'new' type roms (for use with SDK boot loader v1.2+). Or if using my esp2tool
-use the -boot2 option.
+use the -boot2 option. Note: the test loads included with rBoot are built with
+-boot0 because they do not contain a .irom0.text section (and so the value of
+irom0_0_seg in the linker file is irrelevant to them) but 'normal' user apps
+always do.
