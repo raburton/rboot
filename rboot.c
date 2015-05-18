@@ -123,7 +123,7 @@ static uint32 NOINLINE find_image() {
 	
 	ets_delay_us(2000000);
 	
-	ets_printf("\r\nrab boot v1.0.0 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.0.0 - richardaburton@gmail.com\r\n");
 	
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));

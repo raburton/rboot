@@ -24,6 +24,7 @@ typedef struct {
 	uint8 current_rom;	   // currently selected rom
 	uint8 gpio_rom;		   // rom to use for gpio boot
 	uint8 count;		   // number of roms in use
+	uint8 unused[2];	   // padding
 	uint32 roms[MAX_ROMS]; // eeprom addresses of the roms
 } rboot_config;
 
