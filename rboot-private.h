@@ -18,8 +18,6 @@ typedef unsigned char uint8;
 #define ROM_MAGIC_NEW1 0xea
 #define ROM_MAGIC_NEW2 0x04
 
-#define CHKSUM_INIT 0xef
-
 #define TRUE 1
 #define FALSE 0
 

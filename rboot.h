@@ -6,6 +6,8 @@
 // richardaburton@gmail.com
 //////////////////////////////////////////////////
 
+#define CHKSUM_INIT 0xef
+
 #define SECTOR_SIZE 0x1000
 #define BOOT_CONFIG_SECTOR 1
 
@@ -31,6 +33,7 @@ typedef struct {
 	uint8 count;		   // number of roms in use
 	uint8 unused[2];	   // padding
 	uint32 roms[MAX_ROMS]; // flash addresses of the roms
+	uint8 chksum;		   // config chksum
 } rboot_config;
 
 #endif

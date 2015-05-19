@@ -111,6 +111,17 @@ static uint32 get_gpio16() {
 	return x;
 }
 
+// calculate checksum for block of data
+// from start up to (but excluding) end
+static uint8 calc_chksum(uint8 *start, uint8 *end) {
+	uint8 chksum = CHKSUM_INIT;
+	while(start < end) {
+		chksum ^= *start;
+		start++;
+	}
+	return chksum;
+}
+
 // prevent this function being placed inline with main
 // to keep main's stack size as small as possible
 static uint32 NOINLINE find_image() {
@@ -122,6 +133,8 @@ static uint32 NOINLINE find_image() {
 	uint8 gpio_boot = FALSE;
 	uint8 updateConfig = TRUE;
 	uint8 buffer[SECTOR_SIZE];
+	uint8 cksum;
+	uint32 loop;
 	
 	rboot_config *romconf = (rboot_config*)buffer;
 	rom_header *header = (rom_header*)buffer;
@@ -183,7 +196,8 @@ static uint32 NOINLINE find_image() {
 	// read boot config
 	SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
 	// fresh install or old version?
-	if (romconf->magic != BOOT_CONFIG_MAGIC || romconf->version != BOOT_CONFIG_VERSION) {
+	if (romconf->magic != BOOT_CONFIG_MAGIC || romconf->version != BOOT_CONFIG_VERSION
+		|| romconf->chksum != calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum)) {
 		// create a default config for a standard 2 rom setup
 		ets_printf("Writing default boot config.\r\n");
 		ets_memset(romconf, 0x00, sizeof(rboot_config));
@@ -195,6 +209,7 @@ static uint32 NOINLINE find_image() {
 		romconf->current_rom = 0;
 		romconf->roms[0] = SECTOR_SIZE * 2;
 		romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * 2);
+		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
 		// write new config sector
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
 		SPIWrite(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
@@ -243,6 +258,7 @@ static uint32 NOINLINE find_image() {
 	// re-write config, if required
 	if (updateConfig) {
 		romconf->current_rom = romToBoot;
+		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
 		SPIWrite(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
 	}
