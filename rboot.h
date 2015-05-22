@@ -14,6 +14,9 @@
 #define BOOT_CONFIG_MAGIC 0xe1
 #define BOOT_CONFIG_VERSION 0x01
 
+// uncomment to have a checksum on the boot config
+//#define BOOT_CONFIG_CHKSUM
+
 #define MODE_STANDARD 0x00
 #define MODE_GPIO_ROM 0x01
 
@@ -33,7 +36,9 @@ typedef struct {
 	uint8 count;		   // number of roms in use
 	uint8 unused[2];	   // padding
 	uint32 roms[MAX_ROMS]; // flash addresses of the roms
+#ifdef BOOT_CONFIG_CHKSUM
 	uint8 chksum;		   // config chksum
+#endif
 } rboot_config;
 
 #endif

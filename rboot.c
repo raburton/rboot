@@ -111,6 +111,7 @@ static uint32 get_gpio16() {
 	return x;
 }
 
+#ifdef BOOT_CONFIG_CHKSUM
 // calculate checksum for block of data
 // from start up to (but excluding) end
 static uint8 calc_chksum(uint8 *start, uint8 *end) {
@@ -121,6 +122,7 @@ static uint8 calc_chksum(uint8 *start, uint8 *end) {
 	}
 	return chksum;
 }
+#endif
 
 // prevent this function being placed inline with main
 // to keep main's stack size as small as possible
@@ -133,9 +135,7 @@ static uint32 NOINLINE find_image() {
 	uint8 gpio_boot = FALSE;
 	uint8 updateConfig = TRUE;
 	uint8 buffer[SECTOR_SIZE];
-	uint8 cksum;
-	uint32 loop;
-	
+
 	rboot_config *romconf = (rboot_config*)buffer;
 	rom_header *header = (rom_header*)buffer;
 	
@@ -197,19 +197,21 @@ static uint32 NOINLINE find_image() {
 	SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
 	// fresh install or old version?
 	if (romconf->magic != BOOT_CONFIG_MAGIC || romconf->version != BOOT_CONFIG_VERSION
-		|| romconf->chksum != calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum)) {
+#ifdef BOOT_CONFIG_CHKSUM
+		|| romconf->chksum != calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum)
+#endif
+		) {
 		// create a default config for a standard 2 rom setup
 		ets_printf("Writing default boot config.\r\n");
 		ets_memset(romconf, 0x00, sizeof(rboot_config));
 		romconf->magic = BOOT_CONFIG_MAGIC;
 		romconf->version = BOOT_CONFIG_VERSION;
-		romconf->mode = MODE_STANDARD;
-		romconf->current_rom = 0;
 		romconf->count = 2;
-		romconf->current_rom = 0;
 		romconf->roms[0] = SECTOR_SIZE * 2;
 		romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * 2);
+#ifdef BOOT_CONFIG_CHKSUM
 		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
+#endif
 		// write new config sector
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
 		SPIWrite(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
@@ -258,7 +260,9 @@ static uint32 NOINLINE find_image() {
 	// re-write config, if required
 	if (updateConfig) {
 		romconf->current_rom = romToBoot;
+#ifdef BOOT_CONFIG_CHKSUM
 		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
+#endif
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
 		SPIWrite(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
 	}

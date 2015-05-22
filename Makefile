@@ -10,7 +10,7 @@ ESPTOOL2 = d:/Projects/ESP8266/esptool2/Debug/esptool2.exe
 
 .SECONDARY:
 
-all: rboot.rom testload1.rom testload2.rom
+all: rboot.bin testload1.bin testload2.bin
 
 rboot-stage2a.o: rboot-stage2a.c rboot-private.h rboot.h
 	@echo "CC $<"
@@ -36,14 +36,13 @@ rboot.o: rboot.c rboot-private.h rboot.h rboot-hex2a.h
 	@echo "LD $@"
 	@$(LD) -T$(LD_SCRIPT) $(LDFLAGS) -Wl,--start-group $^ -Wl,--end-group -o $@
 
-%.rom: %.elf
+%.bin: %.elf
 	@echo "ESPTOOL2 $@"
 	@$(ESPTOOL2) -quiet -bin -boot0 $< $@ .text .rodata
 
 clean:
-	@echo "RM *.rom *.elf *.o rboot-hex2a.h"
-	@rm -f *.rom
+	@echo "RM *.bin *.elf *.o rboot-hex2a.h"
+	@rm -f *.bin
 	@rm -f *.elf
 	@rm -f *.o
 	@rm -f rboot-hex2a.h
-

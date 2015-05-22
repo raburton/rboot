@@ -41,15 +41,17 @@ manually, see next step.
 rBoot Config
 ------------
 typedef struct {
-	uint8 magic;		   // our magic
-	uint8 version;		   // config struct version
-	uint8 mode;			   // boot loader mode
-	uint8 current_rom;	   // currently selected rom
-	uint8 gpio_rom;		   // rom to use for gpio boot
-	uint8 count;		   // number of roms in use
+	uint8 magic;           // our magic
+	uint8 version;         // config struct version
+	uint8 mode;            // boot loader mode
+	uint8 current_rom;     // currently selected rom
+	uint8 gpio_rom;        // rom to use for gpio boot
+	uint8 count;           // number of roms in use
 	uint8 unused[2];       // padding
 	uint32 roms[MAX_ROMS]; // flash addresses of the roms
-	uint8 chksum;          // boot config checksum
+#ifdef BOOT_CONFIG_CHKSUM
+	uint8 chksum;          // boot config chksum
+#endif
 } rboot_config;
 
 Write a config structure as above to address 0x1000 on the flash. If you want
@@ -70,8 +72,9 @@ Think about how you intend to layout your flash before you start!
   - unused[2] is padding so the uint32 rom addresses are 4 bytes aligned.
   - roms is the array of flash address for the roms. The default generated
     config will contain two entries: 0x00002000 and 0x00082000.
-  - chksum should be the xor of 0xef followed by each of the bytes of the config
-    structure up to (but obviously not including) the chksum byte itself.
+  - chksum (if enabled, not by deafult) should be the xor of 0xef followed by
+    each of the bytes of the config structure up to (but obviously not
+    including) the chksum byte itself.
 
 Linking user code
 -----------------
