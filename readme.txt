@@ -57,6 +57,7 @@ typedef struct {
 Write a config structure as above to address 0x1000 on the flash. If you want
 more than 4 roms (default) just increase MAX_ROMS when you compile rBoot.
 Think about how you intend to layout your flash before you start!
+Rom addresses must be sector aligned i.e start on a multiple of 4096.
 
   - magic should have value 0xe1 (defined as BOOT_CONFIG_MAGIC).
   - version is used in case the config structure changes in future, at the
