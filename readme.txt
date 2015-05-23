@@ -28,12 +28,12 @@ for you, but you'll need my esptool2 (see github).
 
 Installation
 ------------
-Simply write rboot.rom to the first sector of the flash. Remember to set your
+Simply write rboot.bin to the first sector of the flash. Remember to set your
 flash size correctly with your chosen flash tool (e.g. for esptool.py use the
 -fs option). When run rBoot will create it's own config at the start of sector
 two for a simple two rom system. You can can then write your two roms to flash
 addresses 0x2000 and (half chip size + 0x2000). E.g. for 8Mbit flash:
-  esptool.py -fs 8m 0x0000 rboot.rom 0x2000 user1.rom 0x82000 user2.rom
+  esptool.py -fs 8m 0x0000 rboot.bin 0x2000 user1.bin 0x82000 user2.bin
 
 For more interesting rom layouts you'll need to write an rBoot config sector
 manually, see next step.
