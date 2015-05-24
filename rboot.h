@@ -23,10 +23,12 @@
 // increase if required
 #define MAX_ROMS 4
 
-// we can't safely store this where the sdk bootloader does
-// (last sector), the last 4 sectors seem to be reserved for
-// config but none are safe for our use, they all get written
-// over at some point
+// boot config structure
+// rom addresses must be multiples of 0x1000 (flash sector aligned)
+// only the first 8Mbit of the chip will be memory mapped so rom
+// slots containing .irom0.text sections must remain below 0x100000
+// slots beyond this will only be accessible via spi read calls, so
+// use these for stored resources, not code
 typedef struct {
 	uint8 magic;		   // our magic
 	uint8 version;		   // config struct version

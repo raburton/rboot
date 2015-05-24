@@ -6,7 +6,7 @@ LD_SCRIPT = eagle.app.v6.ld
 CC = xtensa-lx106-elf-gcc
 LD = xtensa-lx106-elf-gcc
 
-ESPTOOL2 = d:/Projects/ESP8266/esptool2/Debug/esptool2.exe
+ESPTOOL2 = d:/Projects/esp8266/esptool2/Release/esptool2.exe
 
 .SECONDARY:
 

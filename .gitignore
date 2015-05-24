@@ -1,0 +1,4 @@
+*.o
+*.elf
+*.bin
+rboot-hex2a.h

@@ -18,6 +18,18 @@ Espressif loader:
   - Reserves less ram (16 bytes vs. 144 bytes for the SDK loader).
   - Documented config structure to allow easy editing from user code.
 
+Limitations
+-----------
+The ESP8266 only maps the first 8Mbit of flash to memory. This means anything
+that needs to be accessible via memory mapping must be below address 0x100000 on
+the flash. This includes the .irom0.text section. This is a design limitation of
+the ESP8266 which cannot be overcome by rBoot and limits the usefulness of large
+flash chips. You can still access the extra flash, but you must do so using SPI
+read / write calls rather than the memory mapping. A Larger flash is still
+useful - you could store logging data there, or you could dedicate non-booting
+rom slots in the higher range to store resources for your apps, and you'd be
+able to update them with the rBoot OTA mechanism.
+
 Building
 --------
 Makefile is included, which should work with the gcc xtensa cross compiler.
@@ -60,8 +72,10 @@ Think about how you intend to layout your flash before you start!
 Rom addresses must be sector aligned i.e start on a multiple of 4096.
 
   - magic should have value 0xe1 (defined as BOOT_CONFIG_MAGIC).
-  - version is used in case the config structure changes in future, at the
-    moment it is 0x01 (BOOT_CONFIG_VERSION).
+  - version is used in case the config structure changes after deployment. It is
+    defined as 0x01 (BOOT_CONFIG_VERSION). I don't intend to increase this, but
+    you should if you choose to reflash the bootloader after deployment and
+    the config structure has changed.
   - mode can be 0x00 (MODE_STANDARD) or 0x01 (MODE_GPIO_ROM). If you set GPIO
     you will need to set gpio_rom as well. The sample GPIO code uses GPIO 16 on
     a nodemcu dev board, if you want to use a different GPIO you'll need to
@@ -93,12 +107,16 @@ from the sdk. You then need to modify just one line in it for each rom:
 
 Change the org address to be 0x40200000 (base memory mapped location of the
 flash) + flash address + 0x10 (offset of data after the header).
-So the logical place for your first rom is the third sector, address 0x2000.
+The logical place for your first rom is the third sector, address 0x2000.
   0x40200000 + 0x2000 + 0x10 = 0x40202010
 If you use the default generated config the loader will expect to find the
-second rom at flash address 0x82000, so the irom0_0_seg should be:
+second rom at flash address half-chip-size + 0x2000 (e.g. 0x82000 on an 8MBit
+flash) so the irom0_0_seg should be:
   0x40200000 + 0x82000 + 0x10 = 0x40282010
-Ideally you would also adjust the len to help detect over sized sections at
+Due to the limitation of mapped flash (max 8MBit) if you use a larger chip the
+second rom in the default config will still be placed at 0x082000, not truly
+half-chip-size + 0x2000.
+Ideally you should also adjust the len to help detect over sized sections at
 link time, but more important is the overall size of the rom which you need to
 ensure fits in the space you have allocated for it in your flash layout plan.
 

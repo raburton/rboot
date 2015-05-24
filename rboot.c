@@ -160,10 +160,10 @@ static uint32 NOINLINE find_image() {
 		flashsize = 0x100000;
 	} else if (flag == 3) {
 		ets_printf("16 Mbit\r\n");
-		flashsize = 0x200000;
+		flashsize = 0x100000; // limit to 8Mbit
 	} else if (flag == 4) {
 		ets_printf("32 Mbit\r\n");
-		flashsize = 0x400000;
+		flashsize = 0x100000; // limit to 8Mbit
 	} else {
 		ets_printf("unknown\r\n");
 		// assume at least 4mbit
