@@ -22,7 +22,7 @@ typedef unsigned char uint8;
 #define FALSE 0
 
 // buffer size, must be at least 0x10 (size of rom_header_new structure)
-#define BUFFER_SIZE 0x10
+#define BUFFER_SIZE 0x100
 
 // esp8266 built in rom functions
 extern uint32 SPIRead(uint32 addr, void *outptr, uint32 len);
