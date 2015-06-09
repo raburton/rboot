@@ -1,3 +1,7 @@
+// Copyright 2015 Richard A Burton
+// richardaburton@gmail.com
+// See license.txt for license terms.
+
 #include "testload1.h"
 
 void call_user_start() {
