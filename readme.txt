@@ -38,6 +38,8 @@ second. When run this code is copied to memory and executed (there is a good
 reason for this, see my blog for an explanation). The make file will handle this
 for you, but you'll need my esptool2 (see github).
 
+Tested with SDK v1.1.1_15_06_05.
+
 Installation
 ------------
 Simply write rboot.bin to the first sector of the flash. Remember to set your
