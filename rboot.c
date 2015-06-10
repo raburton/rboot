@@ -150,7 +150,7 @@ static uint32 NOINLINE find_image() {
 	SPIRead(0, header, sizeof(rom_header));
 	
 	// print and get flash size
-	ets_printf("Flash Size:	 ");
+	ets_printf("Flash Size:  ");
 	flag = header->flags2 >> 4;
 	if (flag == 0) {
 		ets_printf("4 Mbit\r\n");
@@ -174,7 +174,7 @@ static uint32 NOINLINE find_image() {
 	}
 	
 	// print spi mode
-	ets_printf("Flash Mode:	 ");
+	ets_printf("Flash Mode:  ");
 	if (header->flags1 == 0) {
 		ets_printf("QIO\r\n");
 	} else if (header->flags1 == 1) {
