@@ -144,13 +144,13 @@ static uint32 NOINLINE find_image() {
 	// delay to slow boot (help see messages when debugging)
 	//ets_delay_us(2000000);
 	
-	ets_printf("\r\nrBoot v1.0.0 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.1.0 - richardaburton@gmail.com\r\n");
 	
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));
 	
 	// print and get flash size
-	ets_printf("Flash Size:  ");
+	ets_printf("Flash Size:   ");
 	flag = header->flags2 >> 4;
 	if (flag == 0) {
 		ets_printf("4 Mbit\r\n");
@@ -163,10 +163,18 @@ static uint32 NOINLINE find_image() {
 		flashsize = 0x100000;
 	} else if (flag == 3) {
 		ets_printf("16 Mbit\r\n");
+#ifdef BOOT_BIG_FLASH
+		flashsize = 0x200000;
+#else
 		flashsize = 0x100000; // limit to 8Mbit
+#endif
 	} else if (flag == 4) {
 		ets_printf("32 Mbit\r\n");
+#ifdef BOOT_BIG_FLASH
+		flashsize = 0x400000;
+#else
 		flashsize = 0x100000; // limit to 8Mbit
+#endif
 	} else {
 		ets_printf("unknown\r\n");
 		// assume at least 4mbit
@@ -174,7 +182,7 @@ static uint32 NOINLINE find_image() {
 	}
 	
 	// print spi mode
-	ets_printf("Flash Mode:  ");
+	ets_printf("Flash Mode:   ");
 	if (header->flags1 == 0) {
 		ets_printf("QIO\r\n");
 	} else if (header->flags1 == 1) {
@@ -188,13 +196,21 @@ static uint32 NOINLINE find_image() {
 	}
 	
 	// print spi speed
-	ets_printf("Flash Speed: ");
+	ets_printf("Flash Speed:  ");
 	flag = header->flags2 & 0x0f;
 	if (flag == 0) ets_printf("40 MHz\r\n");
 	else if (flag == 1) ets_printf("26.7 MHz\r\n");
 	else if (flag == 2) ets_printf("20 MHz\r\n");
 	else if (flag == 0x0f) ets_printf("80 MHz\r\n");
 	else ets_printf("unknown\r\n");
+	
+	// print enabled options
+#ifdef BOOT_BIG_FLASH
+	ets_printf("rBoot Option: Big flash\r\n");
+#endif
+#ifdef BOOT_CONFIG_CHKSUM
+	ets_printf("rBoot Option: Config chksum\r\n");
+#endif
 	
 	// read boot config
 	SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);

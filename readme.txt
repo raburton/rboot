@@ -20,15 +20,15 @@ Espressif loader:
 
 Limitations
 -----------
-The ESP8266 only maps the first 8Mbit of flash to memory. This means anything
-that needs to be accessible via memory mapping must be below address 0x100000 on
-the flash. This includes the .irom0.text section. This is a design limitation of
-the ESP8266 which cannot be overcome by rBoot and limits the usefulness of large
-flash chips. You can still access the extra flash, but you must do so using SPI
-read / write calls rather than the memory mapping. A Larger flash is still
-useful - you could store logging data there, or you could dedicate non-booting
-rom slots in the higher range to store resources for your apps, and you'd be
-able to update them with the rBoot OTA mechanism.
+The ESP8266 can only map 8Mbits (1MB) of flash to memory, but which 8Mbits to
+map is selectable. This allows individual roms to be up to 1MB in size, so long
+as they do not straddle an 8Mbit boundary on the flash. This means you could
+have four 1MB roms or 8 512KB roms on a 32Mbit flash (such as on the ESP-12), or
+a combination. Note, however, that you could not have, for example, a 512KB rom
+followed immediately by a 1MB rom because the 2nd rom would then straddle an
+8MBit boundary. By default support for using more than the first 8Mbit of the
+flash is disabled, because it requires several steps to get it working. See
+below for instructions.
 
 Building
 --------
@@ -115,9 +115,9 @@ If you use the default generated config the loader will expect to find the
 second rom at flash address half-chip-size + 0x2000 (e.g. 0x82000 on an 8MBit
 flash) so the irom0_0_seg should be:
   0x40200000 + 0x82000 + 0x10 = 0x40282010
-Due to the limitation of mapped flash (max 8MBit) if you use a larger chip the
-second rom in the default config will still be placed at 0x082000, not truly
-half-chip-size + 0x2000.
+Due to the limitation of mapped flash (max 8MBit) if you use a larger chip and
+do not have big flash support enabled the second rom in the default config will
+still be placed at 0x082000, not truly half-chip-size + 0x2000.
 Ideally you should also adjust the len to help detect over sized sections at
 link time, but more important is the overall size of the rom which you need to
 ensure fits in the space you have allocated for it in your flash layout plan.
@@ -130,3 +130,54 @@ use the -boot2 option. Note: the test loads included with rBoot are built with
 -boot0 because they do not contain a .irom0.text section (and so the value of
 irom0_0_seg in the linker file is irrelevant to them) but 'normal' user apps
 always do.
+
+Big flash support
+-----------------
+This only needs to be enabled if you wish to be able to memory map more than the
+first 8MBit of the flash. Note you can still only map 8Mbit at a time. Use this
+if you want to have multiple 1MB roms, or more smaller roms than will fit in
+8Mbits. If you have a large flash but only need, for example, two 512KB roms you
+do not need to enable this mode.
+
+Support in rBoot is enabled by uncommenting the #define BOOT_BIG_FLASH in
+rboot.h.
+
+Thinking about your linker files is either simpler or more complicated,
+depending on your usage of the flash. If you intend to use multiple 1MB roms you
+will only need one linker file and you only need to link once for OTA updates.
+Although when you perform an OTA update the rom will be written to a different
+position on the flash, each 8Mbit of flash is mapped (separately) to 0x40200000.
+So when any given rom is run the code will appear at the same place in memory
+regardless of where it is on the flash. Your base address for the linker would
+be 0x40202010. (Actually all but the first rom could base at 0x40200010 (because
+they don't need to leave space for rBoot and config) but then you're just making
+it more complicated again!)
+If you wanted eight 512KB roms you would need two linker files - one for the
+first half of any given 8Mbits of flash and another for the second half. Just
+remember you are really laying out within a single 8MBit area, which can then be
+replicated multiple times on the flash.
+
+Now the clever bit - rBoot needs to hijack the memory mapping code to select
+which 8Mbits gets mapped. There is no API for this, but we can override the SDK
+function. First we need to slightly modify the SDK library libmain.a, like so:
+
+  xtensa-lx106-elf-objcopy -W Cache_Read_Enable_New libmain.a libmain2.a
+
+This produces a version of libmain with a 'weakened' Cache_Read_Enable_New
+function, which we can then override with our own. Modify your Makefile to link
+against the library main2 instead of main.
+Next add rboot-bigflash.c & rboot.h to your project - this adds the replacement
+Cache_Read_Enable_New to your code.
+
+Getting gcc to apply the override correctly can be slightly tricky (I'm not sure
+why, it shouldn't be). One option is to add "-u Cache_Read_Enable_New" to your
+LD_FLAGS and change the order of objects on the LD command so your objects/.a
+file is before the libraries. Another way that seems easier was to #include
+rboot-bigflash.c into the main .c file, rather than compiling it to a separate
+object file. I can't make any sense of that, but I suggest you uncomment the
+message in the Cache_Read_Enable_New function when you first build with it, to
+make sure you are getting your version into the rom.
+
+Now when rBoot starts your rom, the SDK code linked in it that normally performs
+the memory mapping will delegate part of that task to rBoot code (linked in your
+rom, not in rBoot itself) to choose which part of the flash to map.

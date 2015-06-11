@@ -19,6 +19,9 @@
 // uncomment to have a checksum on the boot config
 //#define BOOT_CONFIG_CHKSUM
 
+// uncomment to enable big flash support (>1MB)
+//#define BOOT_BIG_FLASH
+
 #define MODE_STANDARD 0x00
 #define MODE_GPIO_ROM 0x01
 
