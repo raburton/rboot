@@ -128,7 +128,9 @@ static uint8 calc_chksum(uint8 *start, uint8 *end) {
 
 // prevent this function being placed inline with main
 // to keep main's stack size as small as possible
-static uint32 NOINLINE find_image() {
+// don't mark as static or it'll be optimised out when
+// using the assembler stub
+uint32 NOINLINE find_image() {
 	
 	uint8 flag;
 	uint32 runAddr;
@@ -144,7 +146,7 @@ static uint32 NOINLINE find_image() {
 	// delay to slow boot (help see messages when debugging)
 	//ets_delay_us(2000000);
 	
-	ets_printf("\r\nrBoot v1.1.0 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.2.0 - richardaburton@gmail.com\r\n");
 	
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));
@@ -294,6 +296,8 @@ static uint32 NOINLINE find_image() {
 
 }
 
+#ifdef BOOT_NO_ASM
+
 // small stub method to ensure minimum stack space used
 void call_user_start() {
 	uint32 addr;
@@ -305,3 +309,23 @@ void call_user_start() {
 		loader(addr);
 	}
 }
+
+#else
+
+// assembler stub uses no stack space
+// works with gcc
+void call_user_start() {
+	__asm volatile (
+		"mov a15, a0\n"          // store return addr, hope nobody wanted a15!
+		"call0 find_image\n"     // find a good rom to boot
+		"mov a0, a15\n"          // restore return addr
+		"bnez a2, 1f\n"          // ?success
+		"ret\n"                  // no, return
+		"1:\n"                   // yes...
+		"movi a3, entry_addr\n"  // actually gives us a pointer to entry_addr
+		"l32i a3, a3, 0\n"       // now really load entry_addr
+		"jx a3\n"                // now jump to it
+	);
+}
+
+#endif

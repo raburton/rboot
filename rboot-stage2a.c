@@ -7,7 +7,7 @@
 
 #include "rboot-private.h"
 
-usercode* NOINLINE call_user_start2(uint32 readpos) {
+usercode* NOINLINE load_rom(uint32 readpos) {
 	
 	uint8 buffer[BUFFER_SIZE];
 	uint8 sectcount;
@@ -54,8 +54,23 @@ usercode* NOINLINE call_user_start2(uint32 readpos) {
 	return usercode;
 }
 
+#ifdef BOOT_NO_ASM
+
 void call_user_start(uint32 readpos) {
 	usercode* user;
-	user = call_user_start2(readpos);
+	user = load_rom(readpos);
 	user();
 }
+
+#else
+
+void call_user_start(uint32 readpos) {
+	__asm volatile (
+		"mov a15, a0\n"     // store return addr, we already splatted a15!
+		"call0 load_rom\n"  // load the rom
+		"mov a0, a15\n"     // restore return addr
+		"jx a2\n"           // now jump to the rom code
+	);
+}
+
+#endif

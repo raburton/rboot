@@ -16,6 +16,10 @@
 #define BOOT_CONFIG_MAGIC 0xe1
 #define BOOT_CONFIG_VERSION 0x01
 
+// uncomment to use only c code
+// if you aren't using gcc you may need to do this
+//#define BOOT_NO_ASM
+
 // uncomment to have a checksum on the boot config
 //#define BOOT_CONFIG_CHKSUM
 

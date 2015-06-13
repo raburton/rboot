@@ -15,7 +15,7 @@ Espressif loader:
   - Flash layout can be changed on the fly (with care and appropriately linked
     rom images).
   - GPIO support for rom selection.
-  - Reserves less ram (16 bytes vs. 144 bytes for the SDK loader).
+  - Wastes no stack space (SDK boot loader uses 144 bytes).
   - Documented config structure to allow easy editing from user code.
 
 Limitations
@@ -38,7 +38,13 @@ second. When run this code is copied to memory and executed (there is a good
 reason for this, see my blog for an explanation). The make file will handle this
 for you, but you'll need my esptool2 (see github).
 
-Tested with SDK v1.1.1_15_06_05.
+Two small assembler stub functions allow the bootloader to launch the user code
+without reserving any space on the stack (while the SDK boot loader uses 144
+bytes). This compiles fine with GCC, but if you use another compiler and it
+will not compile/work for you then uncomment the #define BOOT_NO_ASM in rboot.h
+to use a C version of these functions (this uses 32 bytes).
+
+Tested with SDK v1.1.1_15_06_05 and GCC v4.8.2.
 
 Installation
 ------------
