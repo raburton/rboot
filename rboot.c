@@ -26,7 +26,9 @@ static uint32 check_image(uint32 readpos) {
 	}
 	
 	// read rom header
-	SPIRead(readpos, header, sizeof(rom_header_new));
+	if (SPIRead(readpos, header, sizeof(rom_header_new)) != 0) {
+		return 0;
+	}
 	
 	// check header type
 	if (header->magic == ROM_MAGIC) {
@@ -37,7 +39,9 @@ static uint32 check_image(uint32 readpos) {
 		readpos += (header->len + sizeof(rom_header_new));
 		romaddr = readpos;
 		// read the normal header that follows
-		SPIRead(readpos, header, sizeof(rom_header));
+		if (SPIRead(readpos, header, sizeof(rom_header)) != 0) {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
