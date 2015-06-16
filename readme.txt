@@ -58,6 +58,9 @@ addresses 0x2000 and (half chip size + 0x2000). E.g. for 8Mbit flash:
 For more interesting rom layouts you'll need to write an rBoot config sector
 manually, see next step.
 
+The two testload bin files can be flashed in place of normal user roms for
+testing rBoot. You do not need these for normal use.
+
 rBoot Config
 ------------
 typedef struct {
