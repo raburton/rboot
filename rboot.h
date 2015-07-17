@@ -18,6 +18,10 @@
 // uncomment to enable big flash support (>1MB)
 //#define BOOT_BIG_FLASH
 
+// uncomment to include .irom0.text section in the checksum
+// roms must be built with esptool2 using -iromchksum option
+//#define BOOT_IROM_CHKSUM
+
 // increase if required
 #define MAX_ROMS 4
 

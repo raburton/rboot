@@ -12,6 +12,7 @@ static uint32 check_image(uint32 readpos) {
 	
 	uint8 buffer[BUFFER_SIZE];
 	uint8 sectcount;
+	uint8 sectcurrent;
 	uint8 *writepos;
 	uint8 chksum = CHKSUM_INIT;
 	uint32 loop;
@@ -32,23 +33,35 @@ static uint32 check_image(uint32 readpos) {
 	
 	// check header type
 	if (header->magic == ROM_MAGIC) {
-		// old type, no extra header or irom segment to skip over
+		// old type, no extra header or irom section to skip over
 		romaddr = readpos;
+		readpos += sizeof(rom_header);
+		sectcount = header->count;
 	} else if (header->magic == ROM_MAGIC_NEW1 && header->count == ROM_MAGIC_NEW2) {
-		// new type, has extra header and irom segment to skip over
-		readpos += (header->len + sizeof(rom_header_new));
-		romaddr = readpos;
+		// new type, has extra header and irom section first
+		romaddr = readpos + header->len + sizeof(rom_header_new);
+#ifdef BOOT_IROM_CHKSUM
+		// we will set the real section count later, when we read the header
+		sectcount = 0xff;
+		// just skip the first part of the header
+		// rest is processed for the chksum
+		readpos += sizeof(rom_header);
+#else
+		// skip the extra header and irom section
+		readpos = romaddr;
 		// read the normal header that follows
 		if (SPIRead(readpos, header, sizeof(rom_header)) != 0) {
 			return 0;
 		}
+		sectcount = header->count;
+		readpos += sizeof(rom_header);
+#endif
 	} else {
 		return 0;
 	}
-	readpos += sizeof(rom_header);
-
-	// load each iram section
-	for (sectcount = header->count; sectcount > 0; sectcount--) {
+	
+	// test each section
+	for (sectcurrent = 0; sectcurrent < sectcount; sectcurrent++) {
 		
 		// read section header
 		if (SPIRead(readpos, section, sizeof(section_header)) != 0) {
@@ -61,7 +74,7 @@ static uint32 check_image(uint32 readpos) {
 		remaining = section->length;
 		
 		while (remaining > 0) {
-			// work out how much to read, up to 16 bytes at a time
+			// work out how much to read, up to BUFFER_SIZE
 			uint32 readlen = (remaining < BUFFER_SIZE) ? remaining : BUFFER_SIZE;
 			// read the block
 			if (SPIRead(readpos, buffer, readlen) != 0) {
@@ -77,6 +90,18 @@ static uint32 check_image(uint32 readpos) {
 				chksum ^= buffer[loop];
 			}
 		}
+		
+#ifdef BOOT_IROM_CHKSUM
+		if (sectcount == 0xff) {
+			// just processed the irom section, now
+			// read the normal header that follows
+			if (SPIRead(readpos, header, sizeof(rom_header)) != 0) {
+				return 0;
+			}
+			sectcount = header->count + 1;
+			readpos += sizeof(rom_header);
+		}
+#endif
 	}
 	
 	// round up to next 16 and get checksum
@@ -89,7 +114,7 @@ static uint32 check_image(uint32 readpos) {
 	if (buffer[0] != chksum) {
 		return 0;
 	}
-
+	
 	return romaddr;
 }
 
@@ -150,7 +175,7 @@ uint32 NOINLINE find_image() {
 	// delay to slow boot (help see messages when debugging)
 	//ets_delay_us(2000000);
 	
-	ets_printf("\r\nrBoot v1.2.0 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.2.1 - richardaburton@gmail.com\r\n");
 	
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));
@@ -217,6 +242,11 @@ uint32 NOINLINE find_image() {
 #ifdef BOOT_CONFIG_CHKSUM
 	ets_printf("rBoot Option: Config chksum\r\n");
 #endif
+#ifdef BOOT_IROM_CHKSUM
+	ets_printf("rBoot Option: irom chksum\r\n");
+#endif
+	
+	ets_printf("\r\n");
 	
 	// read boot config
 	SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
