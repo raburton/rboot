@@ -55,6 +55,9 @@ two for a simple two rom system. You can can then write your two roms to flash
 addresses 0x2000 and (half chip size + 0x2000). E.g. for 8Mbit flash:
   esptool.py -fs 8m 0x0000 rboot.bin 0x2000 user1.bin 0x82000 user2.bin
 
+Note: your device may need other options specified. E.g. The nodemcu devkit v1.0
+(commonly, but incorrectly, sold as v2) also needs the "-fm dio" option.
+
 For more interesting rom layouts you'll need to write an rBoot config sector
 manually, see next step.
 
