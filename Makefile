@@ -5,6 +5,7 @@
 
 ESPTOOL2 ?= D:/Projects/esp8266/esptool2/Release/esptool2.exe
 
+# XTENSA_BINDIR needs trailing slash
 XTENSA_BINDIR ?= C:/xtensa-lx106-elf/bin/
 CC := $(addprefix $(XTENSA_BINDIR),xtensa-lx106-elf-gcc)
 LD := $(addprefix $(XTENSA_BINDIR),xtensa-lx106-elf-gcc)
