@@ -8,6 +8,10 @@
 // See license.txt for license terms.
 //////////////////////////////////////////////////
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // uncomment to use only c code
 // if you aren't using gcc you may need to do this
 //#define BOOT_NO_ASM
@@ -57,5 +61,9 @@ typedef struct {
 	uint8 chksum;		   // config chksum
 #endif
 } rboot_config;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

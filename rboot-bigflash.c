@@ -12,11 +12,28 @@ typedef unsigned char uint8;
 
 #ifdef BOOT_BIG_FLASH
 
+#ifdef SMING
+// for sming mark for iram
+#define IRAM_ATTR __attribute__((section(".iram.text")))
+#else
+// for plain sdk don't mark, defaults to iram
+#define IRAM_ATTR
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern void Cache_Read_Disable();
+extern uint32 SPIRead(uint32, void*, uint32);
+extern void ets_printf(const char*, ...);
+extern void Cache_Read_Enable(uint32, uint32, uint32);
+
 uint8 rBoot_mmap_1 = 0xff;
 uint8 rBoot_mmap_2 = 0xff;
 
-// this function must remain in iram - DO NOT mark with ICACHE_FLASH_ATTR
-void Cache_Read_Enable_New() {
+// this function must remain in iram
+void IRAM_ATTR Cache_Read_Enable_New() {
 	
 	if (rBoot_mmap_1 == 0xff) {
 		uint32 addr;
@@ -37,5 +54,9 @@ void Cache_Read_Enable_New() {
 	
 	Cache_Read_Enable(rBoot_mmap_1, rBoot_mmap_2, 1);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
