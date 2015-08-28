@@ -12,7 +12,7 @@ typedef unsigned char uint8;
 
 #ifdef BOOT_BIG_FLASH
 
-#ifdef SMING
+#ifdef RBOOT_BUILD_SMING
 // for sming mark for iram
 #define IRAM_ATTR __attribute__((section(".iram.text")))
 #else
