@@ -45,7 +45,7 @@ bytes). This compiles fine with GCC, but if you use another compiler and it
 will not compile/work for you then uncomment the #define BOOT_NO_ASM in rboot.h
 to use a C version of these functions (this uses 32 bytes).
 
-Tested with SDK v1.1.1_15_06_05 and GCC v4.8.2.
+Tested with SDK v1.3 and GCC v4.8.2.
 
 Installation
 ------------
@@ -189,8 +189,8 @@ function. First we need to slightly modify the SDK library libmain.a, like so:
 This produces a version of libmain with a 'weakened' Cache_Read_Enable_New
 function, which we can then override with our own. Modify your Makefile to link
 against the library main2 instead of main.
-Next add rboot-bigflash.c & rboot.h to your project - this adds the replacement
-Cache_Read_Enable_New to your code.
+Next add rboot-bigflash.c (from the appcode directory) & rboot.h to your project
+- this adds the replacement Cache_Read_Enable_New to your code.
 
 Getting gcc to apply the override correctly can be slightly tricky (I'm not sure
 why, it shouldn't be). One option is to add "-u Cache_Read_Enable_New" to your

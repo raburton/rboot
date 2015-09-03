@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////
 
 #include "rboot-private.h"
-#include "build/rboot-hex2a.h"
+#include <rboot-hex2a.h>
 
 static uint32 check_image(uint32 readpos) {
 	

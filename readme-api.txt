@@ -4,7 +4,7 @@ by Richard A Burton, richardaburton@gmail.com
 http://richard.burtons.org/
 
 This provides a few simple APIs for getting & setting rBoot config and for
-writing data from OTA updates.
+writing data from OTA updates. API source files are in the appcode directory.
 
 Actual OTA network code is implementation specific and no longer included in
 rBoot itself, see the rBoot sample projects for this code (which you can then
