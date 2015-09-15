@@ -33,11 +33,15 @@ below for instructions.
 
 Building
 --------
-Makefile is included, which should work with the gcc xtensa cross compiler.
+A Makefile is included, which should work with the gcc xtensa cross compiler.
 There are two source files, the first is compiled and included as data in the
 second. When run this code is copied to memory and executed (there is a good
 reason for this, see my blog for an explanation). The make file will handle this
 for you, but you'll need my esptool2 (see github).
+
+To use the Makefile set SDK_BASE to point to the root of the Espressif SDK and
+either set XTENSA_BINDIR to the gcc xtensa bin directory or include it in your
+PATH. These can be set as environment variables or by editing the Makefile.
 
 Two small assembler stub functions allow the bootloader to launch the user code
 without reserving any space on the stack (while the SDK boot loader uses 144
