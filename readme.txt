@@ -208,3 +208,11 @@ make sure you are getting your version into the rom.
 Now when rBoot starts your rom, the SDK code linked in it that normally performs
 the memory mapping will delegate part of that task to rBoot code (linked in your
 rom, not in rBoot itself) to choose which part of the flash to map.
+
+Integration into other frameworks
+---------------------------------
+If you wish to integrate rBoot into a development framework (e.g. Sming) you
+can set the define RBOOT_INTEGRATION and at compile time the file
+rboot-integration.h will be included into the source. This should allow you to
+set some platform specific options without having to modify the source of rBoot
+which makes it easier to integrate and maintain.
