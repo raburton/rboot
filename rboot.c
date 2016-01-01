@@ -168,7 +168,7 @@ uint32 NOINLINE find_image() {
 	uint8 flag;
 	uint32 runAddr;
 	uint32 flashsize;
-	int32 romToBoot;
+	uint8 romToBoot;
 	uint8 gpio_boot = FALSE;
 	uint8 updateConfig = FALSE;
 	uint8 buffer[SECTOR_SIZE];
