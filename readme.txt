@@ -98,7 +98,8 @@ Rom addresses must be sector aligned i.e start on a multiple of 4096.
   - mode can be 0x00 (MODE_STANDARD) or 0x01 (MODE_GPIO_ROM). If you set GPIO
     you will need to set gpio_rom as well. The sample GPIO code uses GPIO 16 on
     a nodemcu dev board, if you want to use a different GPIO you'll need to
-    adapt the code in rBoot slightly.
+    adapt the code in rBoot slightly. Booting with GPIO will update current_rom
+    in the config, so the GPIO booted rom should change this again if required.
   - current_rom is the rom to boot, numbered 0 to count-1.
   - gpio_rom is the rom to boot when the GPIO is triggered at boot.
   - count is the number of roms available (may be less than MAX_ROMS, but not
