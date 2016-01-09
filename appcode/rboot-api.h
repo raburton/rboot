@@ -17,17 +17,19 @@
 extern "C" {
 #endif
 
-/**	@brief	Structure defining flash write status
+/**	@brief  Structure defining flash write status
+ *  @note   The user application should not modify the contents of this
+ *          structure.
  *	@see    rboot_write_flash
  *	@ingroup rboot
 */
 typedef struct {
-	uint32 start_addr; ///<Start address for flash write
-	uint32 start_sector; ///<RAB to describe
+	uint32 start_addr;
+	uint32 start_sector;
 	//uint32 max_sector_count;
-	uint32 last_sector_erased; ///<RAB to describe
-	uint8 extra_count; ///<RAB to describe
-	uint8 extra_bytes[4]; ///<RAB to describe
+	uint32 last_sector_erased;
+	uint8 extra_count;
+	uint8 extra_bytes[4];
 } rboot_write_status;
 
 /**	@brief	Read rBoot configuration from flash
