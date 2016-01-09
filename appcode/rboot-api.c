@@ -12,8 +12,7 @@
 
 #include <string.h>
 #include <c_types.h>
-#include <user_interface.h>
-#include <mem.h>
+#include <spi_flash.h>
 
 #include "rboot-api.h"
 
@@ -39,7 +38,7 @@ bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf) {
 	uint8 *ptr;
 #endif
 	
-	buffer = (uint8*)os_malloc(SECTOR_SIZE);
+	buffer = (uint8*)pvPortMalloc(SECTOR_SIZE);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
@@ -58,7 +57,7 @@ bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf) {
 	spi_flash_erase_sector(BOOT_CONFIG_SECTOR);
 	spi_flash_write(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32*)buffer, SECTOR_SIZE);
 	
-	os_free(buffer);
+	vPortFree(buffer);
 	return true;
 }
 
@@ -101,7 +100,7 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 	}
 	
 	// get a buffer
-	buffer = (uint8 *)os_zalloc(len + status->extra_count);
+	buffer = (uint8 *)pvPortMalloc(len + status->extra_count);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
@@ -142,7 +141,7 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 		}
 	//}
 
-	os_free(buffer);
+	vPortFree(buffer);
 	return ret;
 }
 
