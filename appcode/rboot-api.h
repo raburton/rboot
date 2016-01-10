@@ -9,6 +9,7 @@
  *  @author     richardaburton@gmail.com
  *  @author     OTA code based on SDK sample from Espressif
  *  @license    See licence.txt for license terms.
+ *  @{
 */
 
 #include <rboot.h>
@@ -21,7 +22,6 @@ extern "C" {
  *  @note   The user application should not modify the contents of this
  *          structure.
  *	@see    rboot_write_flash
- *	@ingroup rboot
 */
 typedef struct {
 	uint32 start_addr;
@@ -34,28 +34,25 @@ typedef struct {
 
 /**	@brief	Read rBoot configuration from flash
  *	@retval rboot_config Copy of the rBoot configuration
- *	@ingroup rboot
  *  @note   Returns rboot_config (defined in rboot.h) allowing you to modify any values
  *          in it, including the ROM layout.
 */
 rboot_config ICACHE_FLASH_ATTR rboot_get_config();
 
 /**	@brief	Write rBoot configuration to flash memory
- *	@param	config pointer to a rboot_config structure containing configuration to save
+ *	@param	conf pointer to a rboot_config structure containing configuration to save
  *	@retval bool True on success
  *  @note   Saves the rboot_config structure back to configuration sector (BOOT_CONFIG_SECTOR)
  *          of the flash, while maintaining the contents of the rest of the sector.
  *          You can use the rest of this sector for your app settings, as long as you
  *          protect this structure when you do so.
-*	@ingroup rboot
 */
 bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf);
 
 /**	@brief	Get index of current ROM
  *	@retval uint8 Index of the current ROM
  *  @note   Get the currently selected boot ROM (the currently running ROM, as long as
- *          you haven't changed it since boot).
- *	@ingroup rboot
+ *          you haven't changed it since boot)
 */
 uint8 ICACHE_FLASH_ATTR rboot_get_current_rom();
 
@@ -64,13 +61,11 @@ uint8 ICACHE_FLASH_ATTR rboot_get_current_rom();
  *	@retval	bool True on success
  *  @note   Set the current boot ROM, which will be used when next restarted.
  *  @note   This function re-writes the whole configuration to flash memory (not just the current ROM index)
- *	@ingroup rboot
 */
 bool ICACHE_FLASH_ATTR rboot_set_current_rom(uint8 rom);
 
 /**	@brief  Initialise flash write process
  *	@param  start_addr Address on the SPI flash to begin write to
- *	@ingroup rboot
  *  @note   Call once before starting to pass data to write to flash memory with rboot_write_flash function.
  *          start_addr is the address on the SPI flash to write from. Returns a status structure which
  *          must be passed back on each write. The contents of the structure should not
@@ -82,7 +77,6 @@ rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32 start_addr);
  *	@param  status Pointer to rboot_write_status structure defining the write status
  *  @param  data Pointer to a block of uint8 data elements to be written to flash
  *  @param  len Quantity of uint8 data elements to write to flash
- *	@ingroup rboot
  *  @note   Call repeatedly to write data to the flash, starting at the address
  *  specified on the prior call to rboot_write_init. Current write position is
  *  tracked automatically. This method is likely to be called each time a packet
@@ -95,4 +89,5 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 }
 #endif
 
+/** @} */
 #endif
