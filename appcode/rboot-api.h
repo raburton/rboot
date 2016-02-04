@@ -37,7 +37,7 @@ typedef struct {
  *  @note   Returns rboot_config (defined in rboot.h) allowing you to modify any values
  *          in it, including the ROM layout.
 */
-rboot_config ICACHE_FLASH_ATTR rboot_get_config();
+rboot_config ICACHE_FLASH_ATTR rboot_get_config(void);
 
 /**	@brief	Write rBoot configuration to flash memory
  *	@param	conf pointer to a rboot_config structure containing configuration to save
@@ -54,7 +54,7 @@ bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf);
  *  @note   Get the currently selected boot ROM (the currently running ROM, as long as
  *          you haven't changed it since boot)
 */
-uint8 ICACHE_FLASH_ATTR rboot_get_current_rom();
+uint8 ICACHE_FLASH_ATTR rboot_get_current_rom(void);
 
 /**	@brief	Set the index of current ROM
  *	@param	rom The index of the ROM to use on next boot
