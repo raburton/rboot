@@ -59,11 +59,11 @@ else ifeq ($(SPI_MODE), dout)
 endif
 ifeq ($(SPI_SPEED), 20)
 	E2_OPTS += -20
-else ifeq ($(SPI_MODE), 26)
+else ifeq ($(SPI_SPEED), 26)
 	E2_OPTS += -26.7
-else ifeq ($(SPI_MODE), 40)
+else ifeq ($(SPI_SPEED), 40)
 	E2_OPTS += -40
-else ifeq ($(SPI_MODE), 80)
+else ifeq ($(SPI_SPEED), 80)
 	E2_OPTS += -80
 endif
 
