@@ -96,11 +96,9 @@ Rom addresses must be sector aligned i.e start on a multiple of 4096.
     defined as 0x01 (BOOT_CONFIG_VERSION). I don't intend to increase this, but
     you should if you choose to reflash the bootloader after deployment and
     the config structure has changed.
-  - mode can be 0x00 (MODE_STANDARD) or 0x01 (MODE_GPIO_ROM). If you set GPIO
-    you will need to set gpio_rom as well. The sample GPIO code uses GPIO 16 on
-    a nodemcu dev board, if you want to use a different GPIO you'll need to
-    adapt the code in rBoot slightly. Booting with GPIO will update current_rom
-    in the config, so the GPIO booted rom should change this again if required.
+  - mode can be 0x00 (MODE_STANDARD) or 0x01 (MODE_GPIO_ROM). See below for an
+    explanation of MODE_GPIO_ROM. There is an optional mode flag 0x04
+	(MODE_GPIO_ERASES_SDKCONFIG), see below for details.
   - current_rom is the rom to boot, numbered 0 to count-1.
   - gpio_rom is the rom to boot when the GPIO is triggered at boot.
   - count is the number of roms available (may be less than MAX_ROMS, but not
@@ -111,6 +109,44 @@ Rom addresses must be sector aligned i.e start on a multiple of 4096.
   - chksum (if enabled, not by deafult) should be the xor of 0xef followed by
     each of the bytes of the config structure up to (but obviously not
     including) the chksum byte itself.
+
+GPIO Boot Mode
+--------------
+
+If rboot is compiled with BOOT_GPIO_ENABLED set in rboot.h (or
+RBOOT_GPIO_ENABLED set in the Makefile), then GPIO boot mode is
+enabled whenever the rboot_config 'mode' field is set to
+MODE_GPIO_ROM. If you set MODE_GPIO_ROM in the config then you will
+need to set gpio_rom as well.
+
+If the GPIO input pin reads high at boot, rboot boots the config
+'current_rom' as normal. However if the GPIO is pulled low then
+config 'gpio_rom' is booted instead.
+
+The default GPIO is 16, but this can be overriden in the Makefile
+(RBOOT_GPIO_NUMBER) or rboot.h (BOOT_GPIO_NUM). If GPIOs other than 16
+are used, the internal pullup resistor is enabled before the pin is
+read (and disabled immediately afterwards). For pins that default on
+reset to configuration other than GPIO input, the pin mode is changed
+to input when reading but changed back before rboot continues.
+
+After a "GPIO boot" the current_rom field will be updated in the
+config, so the GPIO booted rom should change this again if required.
+
+Erasing Configuration on GPIO Boot
+----------------------------------
+
+If you set the MODE_GPIO_ERASES_SDKCONFIG flag in the configuration like this:
+```
+conf.mode = MODE_GPIO_ROM|MODE_GPIO_ERASES_SDKCONFIG;
+```
+
+... then a "GPIO boot" will also the erase the Espressif SDK
+persistent settings store in the final 16KB of flash. This includes
+removing calibration constants, saved SSIDs, etc.
+
+Note that MODE_GPIO_ERASES_SDKCONFIG is a flag, so it has to be set as
+well as MODE_GPIO_ROM to take effect.
 
 Linking user code
 -----------------
