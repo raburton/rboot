@@ -38,6 +38,13 @@ extern "C" {
 // value is in microseconds
 //#define BOOT_DELAY_MICROS 2000000
 
+// Change or override to set the GPIO number used by MODE_GPIO_ROM to
+// a different value. BOOT_GPIO_ENABLED must also be set for this to
+// take effect.
+#ifndef BOOT_GPIO_NUM
+#define BOOT_GPIO_NUM 16
+#endif
+
 // increase if required
 #define MAX_ROMS 4
 
@@ -49,9 +56,9 @@ extern "C" {
 #define BOOT_CONFIG_MAGIC 0xe1
 #define BOOT_CONFIG_VERSION 0x01
 
-#define MODE_STANDARD 0x00
-#define MODE_GPIO_ROM 0x01
-#define MODE_TEMP_ROM 0x02
+#define MODE_STANDARD    0x00
+#define MODE_GPIO_ROM    0x01 /* If enabled, pulling BOOT_GPIO_NUM low will boot 'gpio_rom' */
+#define MODE_TEMP_ROM    0x02
 
 #define RBOOT_RTC_MAGIC 0x2334ae68
 #define RBOOT_RTC_READ 1
