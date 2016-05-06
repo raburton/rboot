@@ -49,7 +49,9 @@ endif
 ifeq ($(RBOOT_IROM_CHKSUM),1)
 	CFLAGS += -DBOOT_IROM_CHKSUM
 endif
-
+ifneq ($(RBOOT_GPIO_NUMBER),)
+	CFLAGS += -DBOOT_GPIO_NUM=$(RBOOT_GPIO_NUMBER)
+endif
 
 ifeq ($(SPI_SIZE), 256K)
 	E2_OPTS += -256
