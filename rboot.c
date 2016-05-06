@@ -421,6 +421,12 @@ uint32 NOINLINE find_image(void) {
 			return 0;
 		}
 		ets_printf("Booting GPIO-selected rom.\r\n");
+		if (romconf->mode & MODE_GPIO_ERASES_SDKCONFIG) {
+			ets_printf("Erasing SDK config sectors before booting.\r\n");
+			for(int sec = 1; sec < 5; sec++) {
+				SPIEraseSector((flashsize / SECTOR_SIZE) - sec);
+			}
+		}
 		romToBoot = romconf->gpio_rom;
 		gpio_boot = TRUE;
 		updateConfig = TRUE;

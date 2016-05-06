@@ -59,6 +59,8 @@ extern "C" {
 #define MODE_STANDARD    0x00
 #define MODE_GPIO_ROM    0x01 /* If enabled, pulling BOOT_GPIO_NUM low will boot 'gpio_rom' */
 #define MODE_TEMP_ROM    0x02
+#define MODE_GPIO_ERASES_SDKCONFIG 0x04 /* This is flag is set as well as MODE_GPIO_ROM,
+                                           GPIO boot mode also erases any persistent SDK config */
 
 #define RBOOT_RTC_MAGIC 0x2334ae68
 #define RBOOT_RTC_READ 1

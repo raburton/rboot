@@ -97,7 +97,8 @@ Rom addresses must be sector aligned i.e start on a multiple of 4096.
     you should if you choose to reflash the bootloader after deployment and
     the config structure has changed.
   - mode can be 0x00 (MODE_STANDARD) or 0x01 (MODE_GPIO_ROM). See below for an
-    explanation of MODE_GPIO_ROM.
+    explanation of MODE_GPIO_ROM. There is an optional mode flag 0x04
+	(MODE_GPIO_ERASES_SDKCONFIG), see below for details.
   - current_rom is the rom to boot, numbered 0 to count-1.
   - gpio_rom is the rom to boot when the GPIO is triggered at boot.
   - count is the number of roms available (may be less than MAX_ROMS, but not
@@ -132,6 +133,20 @@ to input when reading but changed back before rboot continues.
 After a "GPIO boot" the current_rom field will be updated in the
 config, so the GPIO booted rom should change this again if required.
 
+Erasing Configuration on GPIO Boot
+----------------------------------
+
+If you set the MODE_GPIO_ERASES_SDKCONFIG flag in the configuration like this:
+```
+conf.mode = MODE_GPIO_ROM|MODE_GPIO_ERASES_SDKCONFIG;
+```
+
+... then a "GPIO boot" will also the erase the Espressif SDK
+persistent settings store in the final 16KB of flash. This includes
+removing calibration constants, saved SSIDs, etc.
+
+Note that MODE_GPIO_ERASES_SDKCONFIG is a flag, so it has to be set as
+well as MODE_GPIO_ROM to take effect.
 
 Linking user code
 -----------------
