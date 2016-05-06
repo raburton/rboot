@@ -49,7 +49,10 @@ endif
 ifeq ($(RBOOT_IROM_CHKSUM),1)
 	CFLAGS += -DBOOT_IROM_CHKSUM
 endif
-
+ifneq ($(RBOOT_EXTRA_INCDIR),)
+	CFLAGS += $(addprefix -I,$(RBOOT_EXTRA_INCDIR))
+endif
+CFLAGS += $(addprefix -I,.)
 
 ifeq ($(SPI_SIZE), 256K)
 	E2_OPTS += -256
@@ -81,8 +84,6 @@ else ifeq ($(SPI_SPEED), 80)
 	E2_OPTS += -80
 endif
 
-RBOOT_EXTRA_INCDIR := $(addprefix -I,$(RBOOT_EXTRA_INCDIR))
-
 .SECONDARY:
 
 #all: $(RBOOT_BUILD_BASE) $(RBOOT_FW_BASE) $(RBOOT_FW_BASE)/rboot.bin $(RBOOT_FW_BASE)/testload1.bin $(RBOOT_FW_BASE)/testload2.bin
@@ -96,7 +97,7 @@ $(RBOOT_FW_BASE):
 
 $(RBOOT_BUILD_BASE)/rboot-stage2a.o: rboot-stage2a.c rboot-private.h rboot.h
 	@echo "CC $<"
-	$(Q) $(CC) $(CFLAGS) $(RBOOT_EXTRA_INCDIR) -c $< -o $@
+	$(Q) $(CC) $(CFLAGS) -c $< -o $@
 
 $(RBOOT_BUILD_BASE)/rboot-stage2a.elf: $(RBOOT_BUILD_BASE)/rboot-stage2a.o
 	@echo "LD $@"
@@ -108,11 +109,11 @@ $(RBOOT_BUILD_BASE)/rboot-hex2a.h: $(RBOOT_BUILD_BASE)/rboot-stage2a.elf
 
 $(RBOOT_BUILD_BASE)/rboot.o: rboot.c rboot-private.h rboot.h $(RBOOT_BUILD_BASE)/rboot-hex2a.h
 	@echo "CC $<"
-	$(Q) $(CC) $(CFLAGS) -I$(RBOOT_BUILD_BASE) $(RBOOT_EXTRA_INCDIR) -c $< -o $@
+	$(Q) $(CC) $(CFLAGS) -I$(RBOOT_BUILD_BASE) -c $< -o $@
 
 $(RBOOT_BUILD_BASE)/%.o: %.c %.h
 	@echo "CC $<"
-	$(Q) $(CC) $(CFLAGS) $(RBOOT_EXTRA_INCDIR) -c $< -o $@
+	$(Q) $(CC) $(CFLAGS) -c $< -o $@
 
 $(RBOOT_BUILD_BASE)/%.elf: $(RBOOT_BUILD_BASE)/%.o
 	@echo "LD $@"
