@@ -364,9 +364,13 @@ uint32 NOINLINE find_image(void) {
 		ets_memset(romconf, 0x00, sizeof(rboot_config));
 		romconf->magic = BOOT_CONFIG_MAGIC;
 		romconf->version = BOOT_CONFIG_VERSION;
+#ifndef BOOT_CONFIG_DEFAULTS
 		romconf->count = 2;
 		romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
 		romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+#else
+		set_defaults(romconf);
+#endif
 #ifdef BOOT_CONFIG_CHKSUM
 		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
 #endif
@@ -452,12 +456,26 @@ uint32 NOINLINE find_image(void) {
 		// for normal mode try each previous rom
 		// until we find a good one or run out
 		updateConfig = TRUE;
-		romToBoot--;
-		if (romToBoot < 0) romToBoot = romconf->count - 1;
-		if (romToBoot == romconf->current_rom) {
-			// tried them all and all are bad!
-			ets_printf("No good rom available.\r\n");
-			return 0;
+		if (romconf->mode & MODE_FALLBACK) {
+			if (romToBoot == 0) {
+				// tried them all incl. fallback and all are bad!
+				ets_printf("No good rom available.\r\n");
+				return 0;
+			}
+			romToBoot--;
+			if (romToBoot < 1) romToBoot = romconf->count - 1;
+			if (romToBoot == romconf->current_rom) {
+				// tried them all and all are bad! -> fallback
+				romToBoot = 0;
+			}
+		} else {
+			romToBoot--;
+			if (romToBoot < 0) romToBoot = romconf->count - 1;
+			if (romToBoot == romconf->current_rom) {
+				// tried them all and all are bad!
+				ets_printf("No good rom available.\r\n");
+				return 0;
+			}
 		}
 		runAddr = check_image(romconf->roms[romToBoot]);
 	}
