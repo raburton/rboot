@@ -63,6 +63,7 @@ extern "C" {
 #define MODE_GPIO_ROM    0x01
 #define MODE_TEMP_ROM    0x02
 #define MODE_GPIO_ERASES_SDKCONFIG 0x04
+#define MODE_FALLBACK 0x08
 
 #define RBOOT_RTC_MAGIC 0x2334ae68
 #define RBOOT_RTC_READ 1
