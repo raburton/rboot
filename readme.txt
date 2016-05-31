@@ -115,8 +115,8 @@ Default config
 A default config sector will be created on boot if one does not exists, or if an
 existing config is corrupted, and the default rom will be set to rom 0. If you
 want to have a very customised config for which the default would not be
-suitable, you can override the implementation in the rBoot.h header file. See the
-comments and example code in rBoot.h for more information.
+suitable, you can override the implementation in the rboot.h header file. See the
+comments and example code in rboot.h for more information.
 
 GPIO boot mode
 --------------
