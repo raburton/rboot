@@ -43,12 +43,20 @@ extern "C" {
 // value is in microseconds
 //#define BOOT_DELAY_MICROS 2000000
 
+// define your own default custom rBoot config, used on
+// first boot and in case of corruption, standard fields
+// (magic, version and chksum (if applicable) are included
+// for you automatically), see example at end of this file
+// and customise as required
+//#define BOOT_CUSTOM_DEFAULT_CONFIG
+
 // max number of roms in the config (defaults to 4), higher
 // values will use more ram at run time
 //#define MAX_ROMS 4
 
 
-// you should not need to modify anything below this line
+// you should not need to modify anything below this line,
+// except default_config() right at the bottom of the file
 
 
 #define CHKSUM_INIT 0xef
@@ -116,6 +124,18 @@ typedef struct {
 	uint8 temp_rom;         ///< The next boot rom number when next_mode set to MODE_TEMP_ROM
 	uint8 chksum;           ///< Checksum of this structure this will be updated for you passed to the API
 } rboot_rtc_data;
+#endif
+
+// override function to create default config, must be placed after type
+// and constant defines as it uses some of them, flashsize is the used size
+// (may be smaller than actual flash size if big flash mode is not enabled,
+// or just plain wrong if the device has not been programmed correctly!)
+#ifdef BOOT_CUSTOM_DEFAULT_CONFIG
+static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
+	romconf->count = 2;
+	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
+	romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+}
 #endif
 
 #ifdef __cplusplus

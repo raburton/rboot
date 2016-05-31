@@ -244,6 +244,16 @@ static uint8 calc_chksum(uint8 *start, uint8 *end) {
 }
 #endif
 
+#ifndef BOOT_CUSTOM_DEFAULT_CONFIG
+// populate the user fields of the default config
+// created on first boot or in case of corruption
+static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
+	romconf->count = 2;
+	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
+	romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+}
+#endif
+
 // prevent this function being placed inline with main
 // to keep main's stack size as small as possible
 // don't mark as static or it'll be optimised out when
@@ -273,7 +283,7 @@ uint32 NOINLINE find_image(void) {
 	ets_delay_us(BOOT_DELAY_MICROS);
 #endif
 
-	ets_printf("\r\nrBoot v1.4.0 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.4.1 - richardaburton@gmail.com\r\n");
 
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));
@@ -364,9 +374,7 @@ uint32 NOINLINE find_image(void) {
 		ets_memset(romconf, 0x00, sizeof(rboot_config));
 		romconf->magic = BOOT_CONFIG_MAGIC;
 		romconf->version = BOOT_CONFIG_VERSION;
-		romconf->count = 2;
-		romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
-		romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+		default_config(romconf, flashsize);
 #ifdef BOOT_CONFIG_CHKSUM
 		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
 #endif
