@@ -421,9 +421,18 @@ uint32 NOINLINE find_image(void) {
 	// check valid rom number
 	// gpio/temp boots will have already validated this
 	if (romconf->current_rom >= romconf->count) {
-		// if invalid rom selected try rom 0
-		ets_printf("Invalid rom selected, defaulting to 0.\r\n");
-		romToBoot = 0;
+		// if invalid rom selected try rom 0 or fallback if enabled
+#ifdef BOOT_FALLBACK_ENABLED
+		if (romconf->mode & MODE_FALLBACK) {
+			ets_printf("Invalid rom selected, defaulting to fallback.\r\n");
+			romToBoot = romconf->fallback_rom;
+		} else {
+#endif
+			ets_printf("Invalid rom selected, defaulting to 0.\r\n");
+			romToBoot = 0;
+#ifdef BOOT_FALLBACK_ENABLED
+		}
+#endif
 		romconf->current_rom = 0;
 		updateConfig = TRUE;
 	}
@@ -456,19 +465,26 @@ uint32 NOINLINE find_image(void) {
 		// for normal mode try each previous rom
 		// until we find a good one or run out
 		updateConfig = TRUE;
+#ifdef BOOT_FALLBACK_ENABLED
 		if (romconf->mode & MODE_FALLBACK) {
-			if (romToBoot == 0) {
+			if (romToBoot == romconf->fallback_rom) {
 				// tried them all incl. fallback and all are bad!
 				ets_printf("No good rom available.\r\n");
 				return 0;
 			}
 			romToBoot--;
-			if (romToBoot < 1) romToBoot = romconf->count - 1;
+			if (romToBoot < 0) romToBoot = romconf->count - 1;
+			if (romToBoot == romconf->fallback_rom) {
+				// skip fallback rom in sequence (try as last resort only)
+				romToBoot--;
+				if (romToBoot < 0) romToBoot = romconf->count - 1;
+			}
 			if (romToBoot == romconf->current_rom) {
-				// tried them all and all are bad! -> fallback
-				romToBoot = 0;
+				// tried them all and all are bad! -> now try fallback rom
+				romToBoot = romconf->fallback_rom;
 			}
 		} else {
+#endif
 			romToBoot--;
 			if (romToBoot < 0) romToBoot = romconf->count - 1;
 			if (romToBoot == romconf->current_rom) {
@@ -476,7 +492,9 @@ uint32 NOINLINE find_image(void) {
 				ets_printf("No good rom available.\r\n");
 				return 0;
 			}
+#ifdef BOOT_FALLBACK_ENABLED
 		}
+#endif
 		runAddr = check_image(romconf->roms[romToBoot]);
 	}
 
