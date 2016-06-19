@@ -102,6 +102,9 @@ typedef struct {
 	uint8 fallback_rom;    ///< ROM to use for fallback with mode set to MODE_FALLBACK
 	uint8 unused[1];       ///< Padding (not used)
 	uint32 roms[MAX_ROMS]; ///< Flash addresses of each ROM
+#ifdef BOOT_CONFIG_CUSTOM
+	rboot_custom_config custom[MAX_ROMS];
+#endif
 #ifdef BOOT_CONFIG_CHKSUM
 	uint8 chksum;          ///< Checksum of this configuration structure (if BOOT_CONFIG_CHKSUM defined)
 #endif
