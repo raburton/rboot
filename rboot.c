@@ -279,6 +279,9 @@ uint32 NOINLINE find_image(void) {
 	ets_delay_us(BOOT_DELAY_MICROS);
 #endif
 
+	// set baudrate to 115200:
+	uart_div_modify(0, 2*26000000 / 115200); // 26 MHz is the actual xtal frequency
+
 	ets_printf("\r\nrBoot v1.4.0 - richardaburton@gmail.com\r\n");
 
 	// read rom header
