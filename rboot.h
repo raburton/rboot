@@ -29,9 +29,14 @@ extern "C" {
 // uncomment to enable GPIO booting
 //#define BOOT_GPIO_ENABLED
 
+// uncomment to enable skipping to the next image via GPIO
+// note: cannot be used together with BOOT_GPIO_ENABLED
+//#define BOOT_GPIO_NEXTIMAGE_ENABLED
+
 // set the GPIO number used by MODE_GPIO_ROM (will
 // default to 16 if not manually set), only applicable
-// when BOOT_GPIO_ENABLED is enabled
+// when either BOOT_GPIO_ENABLED or BOOT_GPIO_NEXTIMAGE_ENABLED
+// is enabled
 //#define BOOT_GPIO_NUM 16
 
 // uncomment to include .irom0.text section in the checksum

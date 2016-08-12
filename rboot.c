@@ -122,7 +122,7 @@ static uint32 check_image(uint32 readpos) {
 	return romaddr;
 }
 
-#ifdef BOOT_GPIO_ENABLED
+#if defined(BOOT_GPIO_ENABLED) || defined(BOOT_GPIO_NEXTIMAGE_ENABLED)
 
 #if BOOT_GPIO_NUM > 16
 #error "Invalid BOOT_GPIO_NUM value (disable BOOT_GPIO_ENABLED to disable this feature)"
@@ -270,7 +270,7 @@ uint32 NOINLINE find_image(void) {
 	rboot_config *romconf = (rboot_config*)buffer;
 	rom_header *header = (rom_header*)buffer;
 
-#if defined (BOOT_GPIO_ENABLED) && (BOOT_GPIO_NUM == 16)
+#if (defined (BOOT_GPIO_ENABLED) || defined(BOOT_GPIO_NEXTIMAGE_ENABLED)) && (BOOT_GPIO_NUM == 16)
 	config_gpio16_as_input();
 #endif
 
@@ -449,6 +449,19 @@ uint32 NOINLINE find_image(void) {
 		rtc.chksum = calc_chksum((uint8*)&rtc, (uint8*)&rtc.chksum);
 		system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 		return 0;
+	}
+#endif
+
+#ifdef BOOT_GPIO_NEXTIMAGE_ENABLED
+#if BOOT_GPIO_NUM == 16
+	if (get_gpio16() == 0)
+#else
+	if (get_gpio(BOOT_GPIO_NUM) == 0)
+#endif
+	{
+		// GPIO is pulled LOW. Force a switch to a different rom.
+		runAddr = 0;
+		ets_printf("GPIO is low, pretending "); // followed by "Rom %d is bad"
 	}
 #endif
 
