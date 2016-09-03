@@ -122,7 +122,7 @@ static uint32 check_image(uint32 readpos) {
 	return romaddr;
 }
 
-#ifdef BOOT_GPIO_ENABLED
+#if defined (BOOT_GPIO_ENABLED) || defined(BOOT_GPIO_SKIP_ENABLED)
 
 #if BOOT_GPIO_NUM > 16
 #error "Invalid BOOT_GPIO_NUM value (disable BOOT_GPIO_ENABLED to disable this feature)"
@@ -251,6 +251,12 @@ static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
 	romconf->count = 2;
 	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
 	romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
+#ifdef BOOT_GPIO_ENABLED
+	romconf->mode = MODE_GPIO_ROM;
+#endif
+#ifdef BOOT_GPIO_SKIP_ENABLED
+	romconf->mode = MODE_GPIO_SKIP;
+#endif
 }
 #endif
 
@@ -268,6 +274,8 @@ uint32 NOINLINE find_image(void) {
 	uint8 buffer[SECTOR_SIZE];
 #ifdef BOOT_GPIO_ENABLED
 	uint8 gpio_boot = FALSE;
+#endif
+#if defined (BOOT_GPIO_ENABLED) || defined(BOOT_GPIO_SKIP_ENABLED)
 	uint8 sec;
 #endif
 #ifdef BOOT_RTC_ENABLED
@@ -351,7 +359,10 @@ uint32 NOINLINE find_image(void) {
 	ets_printf("rBoot Option: Config chksum\r\n");
 #endif
 #ifdef BOOT_GPIO_ENABLED
-	ets_printf("rBoot Option: GPIO mode (%d)\r\n", BOOT_GPIO_NUM);
+	ets_printf("rBoot Option: GPIO rom mode (%d)\r\n", BOOT_GPIO_NUM);
+#endif
+#ifdef BOOT_GPIO_SKIP_ENABLED
+	ets_printf("rBoot Option: GPIO skip mode (%d)\r\n", BOOT_GPIO_NUM);
 #endif
 #ifdef BOOT_RTC_ENABLED
 	ets_printf("rBoot Option: RTC data\r\n");
@@ -403,22 +414,30 @@ uint32 NOINLINE find_image(void) {
 	}
 #endif
 
-#ifdef BOOT_GPIO_ENABLED
+#if defined(BOOT_GPIO_ENABLED) || defined (BOOT_GPIO_SKIP_ENABLED)
 	if (perform_gpio_boot(romconf)) {
+#if defined(BOOT_GPIO_ENABLED)
 		if (romconf->gpio_rom >= romconf->count) {
 			ets_printf("Invalid GPIO rom selected.\r\n");
 			return 0;
 		}
 		ets_printf("Booting GPIO-selected rom.\r\n");
+		romToBoot = romconf->gpio_rom;
+		gpio_boot = TRUE;
+#elif defined(BOOT_GPIO_SKIP_ENABLED)
+		romToBoot = romconf->current_rom + 1;
+		if (romToBoot >= romconf->count) {
+			romToBoot = 0;
+		}
+		romconf->current_rom = romToBoot;
+#endif
+		updateConfig = TRUE;
 		if (romconf->mode & MODE_GPIO_ERASES_SDKCONFIG) {
 			ets_printf("Erasing SDK config sectors before booting.\r\n");
 			for (sec = 1; sec < 5; sec++) {
 				SPIEraseSector((flashsize / SECTOR_SIZE) - sec);
 			}
 		}
-		romToBoot = romconf->gpio_rom;
-		gpio_boot = TRUE;
-		updateConfig = TRUE;
 	}
 #endif
 
