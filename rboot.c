@@ -139,7 +139,7 @@ static uint32 check_image(uint32 readpos) {
 #define RTC_GPIO_IN_DATA						(REG_RTC_BASE + 0x08C)
 #define RTC_GPIO_CONF							(REG_RTC_BASE + 0x090)
 #define PAD_XPD_DCDC_CONF						(REG_RTC_BASE + 0x0A0)
-static uint32 get_gpio16(void) {
+static void config_gpio16_as_input(void) {
 	// set output level to 1
 	WRITE_PERI_REG(RTC_GPIO_OUT, (READ_PERI_REG(RTC_GPIO_OUT) & (uint32)0xfffffffe) | (uint32)(1));
 
@@ -147,7 +147,9 @@ static uint32 get_gpio16(void) {
 	WRITE_PERI_REG(PAD_XPD_DCDC_CONF, (READ_PERI_REG(PAD_XPD_DCDC_CONF) & 0xffffffbc) | (uint32)0x1);	// mux configuration for XPD_DCDC and rtc_gpio0 connection
 	WRITE_PERI_REG(RTC_GPIO_CONF, (READ_PERI_REG(RTC_GPIO_CONF) & (uint32)0xfffffffe) | (uint32)0x0);	//mux configuration for out enable
 	WRITE_PERI_REG(RTC_GPIO_ENABLE, READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32)0xfffffffe);	//out disable
+}
 
+static uint32 get_gpio16(void) {
 	return (READ_PERI_REG(RTC_GPIO_IN_DATA) & 1);
 }
 
@@ -285,6 +287,11 @@ uint32 NOINLINE find_image(void) {
 
 	rboot_config *romconf = (rboot_config*)buffer;
 	rom_header *header = (rom_header*)buffer;
+
+#if (defined (BOOT_GPIO_ENABLED) || defined (BOOT_GPIO_SKIP_ENABLED)) && (BOOT_GPIO_NUM == 16)
+	// early input config for gpio 16
+	config_gpio16_as_input();
+#endif
 
 #if defined BOOT_DELAY_MICROS && BOOT_DELAY_MICROS > 0
 	// delay to slow boot (help see messages when debugging)
