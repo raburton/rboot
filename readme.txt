@@ -118,10 +118,10 @@ want to have a very customised config for which the default would not be
 suitable, you can override the implementation in the rboot.h header file. See the
 comments and example code in rboot.h for more information.
 
-GPIO boot mode
---------------
+GPIO boot (rom) mode
+--------------------
 If rBoot is compiled with BOOT_GPIO_ENABLED set in rboot.h (or
-RBOOT_GPIO_ENABLED set in the Makefile), then GPIO boot functionality will
+RBOOT_GPIO_ENABLED set in the Makefile), then GPIO boot functionality will be
 included in the rBoot binary. The feature can then be enabled by setting the
 rboot_config 'mode' field to MODE_GPIO_ROM. You must also set 'gpio_rom' in the
 config to indicate which rom to boot when the GPIO is activated at boot.
@@ -140,8 +140,24 @@ before rboot continues.
 After a GPIO boot the current_rom field will be updated in the config, so the
 GPIO booted rom should change this again if required.
 
-Erasing SDK configuration on GPIO boot
---------------------------------------
+GPIO boot skip mode
+-------------------
+If rBoot is compiled with BOOT_GPIO_SKIP_ENABLED set in rboot.h (or
+RBOOT_GPIO_SKIP_ENABLED set in the Makefile), then a GPIO can be used to skip
+to the next rom at boot. The feature must then be enabled by setting the
+rboot_config 'mode' field to MODE_GPIO_SKIP. This means you do not need to have
+a dedicated GPIO boot rom. If you have a rom that is technically good (valid
+checksum, etc.) but has operational problems, e.g. wifi doesn't work or it
+crashes on boot, rBoot will not be able to detect that and switch rom
+automatically. In this scenario rebooting the device while pulling the GPIO low
+will force rBoot to skip this rom and try the next one instead. In a simple two
+rom setup this simply toggles booting of the other rom.
+
+RBOOT_GPIO_SKIP_ENABLED and RBOOT_GPIO_ENABLED cannot be used at the same time.
+BOOT_GPIO_NUM is used to select the GPIO pin, as with RBOOT_GPIO_ENABLED.
+
+Erasing SDK configuration on GPIO boot (rom or skip mode)
+---------------------------------------------------------
 If you set the MODE_GPIO_ERASES_SDKCONFIG flag in the configuration like this:
   conf.mode = MODE_GPIO_ROM|MODE_GPIO_ERASES_SDKCONFIG;
 then a GPIO boot will also the erase the Espressif SDK persistent settings

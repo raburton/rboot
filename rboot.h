@@ -26,12 +26,19 @@ extern "C" {
 // rBoot and the user app via the esp rtc data area
 //#define BOOT_RTC_ENABLED
 
-// uncomment to enable GPIO booting
+// uncomment to enable GPIO booting of specific rom
+// (specified in rBoot config block)
+// cannot be used at same time as BOOT_GPIO_SKIP_ENABLED
 //#define BOOT_GPIO_ENABLED
 
-// set the GPIO number used by MODE_GPIO_ROM (will
-// default to 16 if not manually set), only applicable
-// when BOOT_GPIO_ENABLED is enabled
+// uncomment to enable GPIO rom skip mode, trigger
+// GPIO at boot time to skip to next rom
+// cannot be used at same time as BOOT_GPIO_ENABLED
+#define BOOT_GPIO_SKIP_ENABLED
+
+// set the GPIO pin used by GPIO modes above (will default
+// to 16 if not manually set), only applicable when
+// BOOT_GPIO_ENABLED or BOOT_GPIO_SKIP_ENABLED is enabled
 //#define BOOT_GPIO_NUM 16
 
 // uncomment to include .irom0.text section in the checksum
@@ -71,6 +78,7 @@ extern "C" {
 #define MODE_GPIO_ROM    0x01
 #define MODE_TEMP_ROM    0x02
 #define MODE_GPIO_ERASES_SDKCONFIG 0x04
+#define MODE_GPIO_SKIP   0x08
 
 #define RBOOT_RTC_MAGIC 0x2334ae68
 #define RBOOT_RTC_READ 1
@@ -99,7 +107,7 @@ extern "C" {
 typedef struct {
 	uint8 magic;           ///< Our magic, identifies rBoot configuration - should be BOOT_CONFIG_MAGIC
 	uint8 version;         ///< Version of configuration structure - should be BOOT_CONFIG_VERSION
-	uint8 mode;            ///< Boot loader mode (MODE_STANDARD | MODE_GPIO_ROM)
+	uint8 mode;            ///< Boot loader mode (MODE_STANDARD | MODE_GPIO_ROM | MODE_GPIO_SKIP)
 	uint8 current_rom;     ///< Currently selected ROM (will be used for next standard boot)
 	uint8 gpio_rom;        ///< ROM to use for GPIO boot (hardware switch) with mode set to MODE_GPIO_ROM
 	uint8 count;           ///< Quantity of ROMs available to boot
