@@ -291,7 +291,7 @@ uint32 NOINLINE find_image(void) {
 	ets_delay_us(BOOT_DELAY_MICROS);
 #endif
 
-	ets_printf("\r\nrBoot v1.4.1 - richardaburton@gmail.com\r\n");
+	ets_printf("\r\nrBoot v1.4.2 - richardaburton@gmail.com\r\n");
 
 	// read rom header
 	SPIRead(0, header, sizeof(rom_header));

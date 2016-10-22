@@ -101,6 +101,18 @@ rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32 start_addr) {
 	return status;
 }
 
+// ensure any remaning bytes get written (needed for files not a multiple of 4 bytes)
+bool ICACHE_FLASH_ATTR rboot_write_end(rboot_write_status *status) {
+	uint8 i;
+	if (status->extra_count != 0) {
+		for (i = status->extra_count; i < 4; i++) {
+			status->extra_bytes[i] = 0xff;
+		}
+		return rboot_write_flash(status, status->extra_bytes, 4);
+	}
+	return true;
+}
+
 // function to do the actual writing to flash
 // call repeatedly with more data (max len per write is the flash sector size (4k))
 bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data, uint16 len) {
@@ -121,7 +133,9 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 	}
 
 	// copy in any remaining bytes from last chunk
-	memcpy(buffer, status->extra_bytes, status->extra_count);
+	if (status->extra_count != 0) {
+		memcpy(buffer, status->extra_bytes, status->extra_count);
+	}
 	// copy in new data
 	memcpy(buffer + status->extra_count, data, len);
 

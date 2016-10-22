@@ -74,6 +74,15 @@ bool ICACHE_FLASH_ATTR rboot_set_current_rom(uint8 rom);
 */
 rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32 start_addr);
 
+/** @brief  Complete flash write process
+ *  @param  status Pointer to rboot_write_status structure defining the write status
+ *  @note   Call at the completion of flash writing. This ensures any
+ *          outstanding bytes are written (if data so far hasn't been a multiple
+ *          of 4 bytes there will be a few bytes unwritten, until you call
+ *          this function).
+*/
+bool ICACHE_FLASH_ATTR rboot_write_end(rboot_write_status *status);
+
 /**	@brief  Write data to flash memory
  *	@param  status Pointer to rboot_write_status structure defining the write status
  *  @param  data Pointer to a block of uint8 data elements to be written to flash

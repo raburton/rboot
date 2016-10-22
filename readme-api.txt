@@ -33,6 +33,13 @@ use in your own projects).
     the address on the SPI flash to write from. Returns a status structure which
     must be passed back on each write. The contents of the structure should not
     be modified by the calling code.
+
+  bool rboot_write_end(rboot_write_status *status);
+    Call once after the last rboot_write_flash call to ensure any last bytes are
+    written to the flash. If you write data that is not a multiple of 4 bytes in
+    length the remaining bytes are saved and written on the next call to
+    rboot_write_flash automatically. After the last call to the function, if
+     there are outstanding bytes, rboot_write_end will ensure they are written.
 	
   bool rboot_write_flash(rboot_write_status *status, uint8 *data, uint16 len);
     Call repeatedly to write data to the flash, starting at the address
