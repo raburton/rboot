@@ -17,7 +17,6 @@ static uint32 check_image(uint32 readpos) {
 	uint8 buffer[BUFFER_SIZE];
 	uint8 sectcount;
 	uint8 sectcurrent;
-	uint8 *writepos;
 	uint8 chksum = CHKSUM_INIT;
 	uint32 loop;
 	uint32 remaining;
@@ -74,7 +73,6 @@ static uint32 check_image(uint32 readpos) {
 		readpos += sizeof(section_header);
 
 		// get section address and length
-		writepos = section->address;
 		remaining = section->length;
 
 		while (remaining > 0) {
@@ -84,9 +82,8 @@ static uint32 check_image(uint32 readpos) {
 			if (SPIRead(readpos, buffer, readlen) != 0) {
 				return 0;
 			}
-			// increment next read and write positions
+			// increment next read position
 			readpos += readlen;
-			writepos += readlen;
 			// decrement remaining count
 			remaining -= readlen;
 			// add to chksum
