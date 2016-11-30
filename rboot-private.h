@@ -26,6 +26,9 @@ typedef unsigned char uint8;
 // buffer size, must be at least 0x10 (size of rom_header_new structure)
 #define BUFFER_SIZE 0x100
 
+// stage2 read chunk maximum size (limit for SPIRead)
+#define READ_SIZE 0x1000
+
 // esp8266 built in rom functions
 extern uint32 SPIRead(uint32 addr, void *outptr, uint32 len);
 extern uint32 SPIEraseSector(int);
