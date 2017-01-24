@@ -5,10 +5,6 @@
 // See license.txt for license terms.
 //////////////////////////////////////////////////
 
-#ifdef RBOOT_INTEGRATION
-#include <rboot-integration.h>
-#endif
-
 typedef unsigned int uint32;
 typedef unsigned char uint8;
 
