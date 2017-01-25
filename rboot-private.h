@@ -8,10 +8,6 @@
 // See license.txt for license terms.
 //////////////////////////////////////////////////
 
-typedef int int32;
-typedef unsigned int uint32;
-typedef unsigned char uint8;
-
 #include <rboot.h>
 
 #define NOINLINE __attribute__ ((noinline))
@@ -19,9 +15,6 @@ typedef unsigned char uint8;
 #define ROM_MAGIC	   0xe9
 #define ROM_MAGIC_NEW1 0xea
 #define ROM_MAGIC_NEW2 0x04
-
-#define TRUE 1
-#define FALSE 0
 
 // buffer size, must be at least 0x10 (size of rom_header_new structure)
 #define BUFFER_SIZE 0x100

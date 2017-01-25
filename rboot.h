@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#include <c_types.h> // uint* types
+
 #ifdef RBOOT_INTEGRATION
 #include <rboot-integration.h>
 #endif
