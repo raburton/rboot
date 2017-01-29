@@ -12,6 +12,11 @@
 #include "rboot-private.h"
 #include <rboot-hex2a.h>
 
+#ifndef UART_CLK_FREQ
+// reset apb freq = 2x crystal freq: http://esp8266-re.foogod.com/wiki/Serial_UART
+#define UART_CLK_FREQ	(26000000 * 2)
+#endif
+
 static uint32 check_image(uint32 readpos) {
 
 	uint8 buffer[BUFFER_SIZE];
@@ -228,6 +233,16 @@ uint32 system_rtc_mem(int32 addr, void *buff, int32 length, uint32 mode) {
 }
 #endif
 
+#ifdef BOOT_BAUDRATE
+static enum rst_reason get_reset_reason(void) {
+
+	// reset reason is stored @ offset 0 in system rtc memory
+	volatile uint32 *rtc = (uint32*)0x60001100;
+
+	return *rtc;
+}
+#endif
+
 #if defined(BOOT_CONFIG_CHKSUM) || defined(BOOT_RTC_ENABLED)
 // calculate checksum for block of data
 // from start up to (but excluding) end
@@ -282,6 +297,13 @@ uint32 NOINLINE find_image(void) {
 
 	rboot_config *romconf = (rboot_config*)buffer;
 	rom_header *header = (rom_header*)buffer;
+
+#ifdef BOOT_BAUDRATE
+	// soft reset doesn't reset PLL/divider, so leave as configured
+	if (get_reset_reason() != REASON_SOFT_RESTART) {
+		uart_div_modify( 0, UART_CLK_FREQ / BOOT_BAUDRATE);
+	}
+#endif
 
 #if defined BOOT_DELAY_MICROS && BOOT_DELAY_MICROS > 0
 	// delay to slow boot (help see messages when debugging)
