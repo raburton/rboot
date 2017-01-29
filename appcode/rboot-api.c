@@ -18,10 +18,6 @@
 #include <mem.h>
 #endif
 
-#ifdef RBOOT_INTEGRATION
-#include <rboot-integration.h>
-#endif
-
 #include "rboot-api.h"
 
 #ifdef __cplusplus
