@@ -2,7 +2,7 @@
 // richardaburton@gmail.com
 // See license.txt for license terms.
 
-#include "testload1.h"
+#include <c_types.h>
 
 void call_user_start(void) {
 	uint8 loop;
