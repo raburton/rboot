@@ -22,7 +22,7 @@ else
 Q := @
 endif
 
-CFLAGS    = -Os -O3 -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
+CFLAGS    = -Os -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
 LDFLAGS   = -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
 LD_SCRIPT = eagle.app.v6.ld
 
