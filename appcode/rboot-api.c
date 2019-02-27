@@ -7,7 +7,6 @@
 //////////////////////////////////////////////////
 
 #include <string.h>
-#include <c_types.h>
 #include <spi_flash.h>
 
 // detect rtos sdk (not ideal method!)
@@ -27,8 +26,8 @@ extern "C" {
 #if defined(BOOT_CONFIG_CHKSUM) || defined(BOOT_RTC_ENABLED)
 // calculate checksum for block of data
 // from start up to (but excluding) end
-static uint8 calc_chksum(uint8 *start, uint8 *end) {
-	uint8 chksum = CHKSUM_INIT;
+static uint8_t calc_chksum(uint8_t *start, uint8_t *end) {
+	uint8_t chksum = CHKSUM_INIT;
 	while(start < end) {
 		chksum ^= *start;
 		start++;
@@ -40,7 +39,7 @@ static uint8 calc_chksum(uint8 *start, uint8 *end) {
 // get the rboot config
 rboot_config ICACHE_FLASH_ATTR rboot_get_config(void) {
 	rboot_config conf;
-	spi_flash_read(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32*)&conf, sizeof(rboot_config));
+	spi_flash_read(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32_t*)&conf, sizeof(rboot_config));
 	return conf;
 }
 
@@ -49,36 +48,35 @@ rboot_config ICACHE_FLASH_ATTR rboot_get_config(void) {
 // so the rest of the sector can be used to store user data
 // updates checksum automatically (if enabled)
 bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf) {
-	uint8 *buffer;
-	buffer = (uint8*)os_malloc(SECTOR_SIZE);
+	uint8_t *buffer;
+	buffer = (uint8_t*)os_malloc(SECTOR_SIZE);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
 	}
 	
 #ifdef BOOT_CONFIG_CHKSUM
-	conf->chksum = calc_chksum((uint8*)conf, (uint8*)&conf->chksum);
+	conf->chksum = calc_chksum((uint8_t*)conf, (uint8_t*)&conf->chksum);
 #endif
 	
-	spi_flash_read(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32*)((void*)buffer), SECTOR_SIZE);
+	spi_flash_read(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32_t*)((void*)buffer), SECTOR_SIZE);
 	memcpy(buffer, conf, sizeof(rboot_config));
 	spi_flash_erase_sector(BOOT_CONFIG_SECTOR);
-	//spi_flash_write(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32*)((void*)buffer), SECTOR_SIZE);
-	spi_flash_write(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32*)((void*)buffer), SECTOR_SIZE);
+	spi_flash_write(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32_t*)((void*)buffer), SECTOR_SIZE);
 	
 	os_free(buffer);
 	return true;
 }
 
 // get current boot rom
-uint8 ICACHE_FLASH_ATTR rboot_get_current_rom(void) {
+uint8_t ICACHE_FLASH_ATTR rboot_get_current_rom(void) {
 	rboot_config conf;
 	conf = rboot_get_config();
 	return conf.current_rom;
 }
 
 // set current boot rom
-bool ICACHE_FLASH_ATTR rboot_set_current_rom(uint8 rom) {
+bool ICACHE_FLASH_ATTR rboot_set_current_rom(uint8_t rom) {
 	rboot_config conf;
 	conf = rboot_get_config();
 	if (rom >= conf.count) return false;
@@ -87,7 +85,7 @@ bool ICACHE_FLASH_ATTR rboot_set_current_rom(uint8 rom) {
 }
 
 // create the write status struct, based on supplied start address
-rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32 start_addr) {
+rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32_t start_addr) {
 	rboot_write_status status = {0};
 	status.start_addr = start_addr;
 	status.start_sector = start_addr / SECTOR_SIZE;
@@ -99,7 +97,7 @@ rboot_write_status ICACHE_FLASH_ATTR rboot_write_init(uint32 start_addr) {
 
 // ensure any remaning bytes get written (needed for files not a multiple of 4 bytes)
 bool ICACHE_FLASH_ATTR rboot_write_end(rboot_write_status *status) {
-	uint8 i;
+	uint8_t i;
 	if (status->extra_count != 0) {
 		for (i = status->extra_count; i < 4; i++) {
 			status->extra_bytes[i] = 0xff;
@@ -111,18 +109,18 @@ bool ICACHE_FLASH_ATTR rboot_write_end(rboot_write_status *status) {
 
 // function to do the actual writing to flash
 // call repeatedly with more data (max len per write is the flash sector size (4k))
-bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data, uint16 len) {
+bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8_t *data, uint16_t len) {
 	
 	bool ret = false;
-	uint8 *buffer;
-	int32 lastsect;
+	uint8_t *buffer;
+	int32_t lastsect;
 	
 	if (data == NULL || len == 0) {
 		return true;
 	}
 	
 	// get a buffer
-	buffer = (uint8 *)os_malloc(len + status->extra_count);
+	buffer = (uint8_t *)os_malloc(len + status->extra_count);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
@@ -154,7 +152,7 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 
 		// write current chunk
 		//os_printf("write addr: 0x%08x, len: 0x%04x\r\n", status->start_addr, len);
-		if (spi_flash_write(status->start_addr, (uint32 *)((void*)buffer), len) == SPI_FLASH_RESULT_OK) {
+		if (spi_flash_write(status->start_addr, (uint32_t *)((void*)buffer), len) == SPI_FLASH_RESULT_OK) {
 			ret = true;
 			status->start_addr += len;
 		}
@@ -167,18 +165,18 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8 *data
 #ifdef BOOT_RTC_ENABLED
 bool ICACHE_FLASH_ATTR rboot_get_rtc_data(rboot_rtc_data *rtc) {
 	if (system_rtc_mem_read(RBOOT_RTC_ADDR, rtc, sizeof(rboot_rtc_data))) {
-		return (rtc->chksum == calc_chksum((uint8*)rtc, (uint8*)&rtc->chksum));
+		return (rtc->chksum == calc_chksum((uint8_t*)rtc, (uint8_t*)&rtc->chksum));
 	}
 	return false;
 }
 
 bool ICACHE_FLASH_ATTR rboot_set_rtc_data(rboot_rtc_data *rtc) {
 	// calculate checksum
-	rtc->chksum = calc_chksum((uint8*)rtc, (uint8*)&rtc->chksum);
+	rtc->chksum = calc_chksum((uint8_t*)rtc, (uint8_t*)&rtc->chksum);
 	return system_rtc_mem_write(RBOOT_RTC_ADDR, rtc, sizeof(rboot_rtc_data));
 }
 
-bool ICACHE_FLASH_ATTR rboot_set_temp_rom(uint8 rom) {
+bool ICACHE_FLASH_ATTR rboot_set_temp_rom(uint8_t rom) {
 	rboot_rtc_data rtc;
 	// invalid data in rtc?
 	if (!rboot_get_rtc_data(&rtc)) {
@@ -194,7 +192,7 @@ bool ICACHE_FLASH_ATTR rboot_set_temp_rom(uint8 rom) {
 	return rboot_set_rtc_data(&rtc);
 }
 
-bool ICACHE_FLASH_ATTR rboot_get_last_boot_rom(uint8 *rom) {
+bool ICACHE_FLASH_ATTR rboot_get_last_boot_rom(uint8_t *rom) {
 	rboot_rtc_data rtc;
 	if (rboot_get_rtc_data(&rtc)) {
 		*rom = rtc.last_rom;
@@ -203,7 +201,7 @@ bool ICACHE_FLASH_ATTR rboot_get_last_boot_rom(uint8 *rom) {
 	return false;
 }
 
-bool ICACHE_FLASH_ATTR rboot_get_last_boot_mode(uint8 *mode) {
+bool ICACHE_FLASH_ATTR rboot_get_last_boot_mode(uint8_t *mode) {
 	rboot_rtc_data rtc;
 	if (rboot_get_rtc_data(&rtc)) {
 		*mode = rtc.last_mode;
