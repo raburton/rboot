@@ -275,7 +275,7 @@ static uint8_t default_config(rboot_config *romconf, uint32_t flashsize) {
 uint32_t NOINLINE find_image(void) {
 
 	uint8_t flag;
-	uint32_t runAddr;
+	uint32_t loadAddr;
 	uint32_t flashsize;
 	int32_t romToBoot;
 	uint8_t updateConfig = 0;
@@ -481,17 +481,17 @@ uint32_t NOINLINE find_image(void) {
 	}
 
 	// check rom is valid
-	runAddr = check_image(romconf->roms[romToBoot]);
+	loadAddr = check_image(romconf->roms[romToBoot]);
 
 #ifdef BOOT_GPIO_ENABLED
-	if (gpio_boot && runAddr == 0) {
+	if (gpio_boot && loadAddr == 0) {
 		// don't switch to backup for gpio-selected rom
 		ets_printf("GPIO boot rom (%d) is bad.\r\n", romToBoot);
 		return 0;
 	}
 #endif
 #ifdef BOOT_RTC_ENABLED
-	if (temp_boot && runAddr == 0) {
+	if (temp_boot && loadAddr == 0) {
 		// don't switch to backup for temp rom
 		ets_printf("Temp boot rom (%d) is bad.\r\n", romToBoot);
 		// make sure rtc temp boot mode doesn't persist
@@ -503,7 +503,7 @@ uint32_t NOINLINE find_image(void) {
 #endif
 
 	// check we have a good rom
-	while (runAddr == 0) {
+	while (loadAddr == 0) {
 		ets_printf("Rom %d at %x is bad.\r\n", romToBoot, romconf->roms[romToBoot]);
 		// for normal mode try each previous rom
 		// until we find a good one or run out
@@ -515,7 +515,7 @@ uint32_t NOINLINE find_image(void) {
 			ets_printf("No good rom available.\r\n");
 			return 0;
 		}
-		runAddr = check_image(romconf->roms[romToBoot]);
+		loadAddr = check_image(romconf->roms[romToBoot]);
 	}
 
 	// re-write config, if required
@@ -543,11 +543,11 @@ uint32_t NOINLINE find_image(void) {
 	system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 #endif
 
-	ets_printf("Booting rom %d at %x, run addr %x.\r\n", romToBoot, romconf->roms[romToBoot], runAddr);
+	ets_printf("Booting rom %d at %x, load addr %x.\r\n", romToBoot, romconf->roms[romToBoot], loadAddr);
 	// copy the loader to top of iram
 	ets_memcpy((void*)_text_addr, _text_data, _text_len);
 	// return address to load from
-	return runAddr;
+	return loadAddr;
 
 }
 
