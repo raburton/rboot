@@ -50,7 +50,7 @@ bytes). This compiles fine with GCC, but if you use another compiler and it
 will not compile/work for you then uncomment the `#define BOOT_NO_ASM` in `rboot.h`
 to use a C version of these functions (this uses 32 bytes).
 
-Tested with SDK v1.3 and GCC v4.8.2.
+Tested with SDK v2.2 and GCC v4.8.5.
 
 Installation
 ------------
