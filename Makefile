@@ -23,7 +23,7 @@ Q := @
 endif
 
 CFLAGS    = -Os -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
-LDFLAGS   = -nostdlib -Wl,--no-check-sections -u call_user_start -Wl,-static
+LDFLAGS   = -nostdlib -u call_user_start -Wl,-static
 LD_SCRIPT = eagle.app.v6.ld
 
 E2_OPTS = -quiet -bin -boot0
