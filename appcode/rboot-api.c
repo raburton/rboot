@@ -9,14 +9,6 @@
 #include <string.h>
 #include <spi_flash.h>
 
-// detect rtos sdk (not ideal method!)
-#ifdef IRAM_ATTR
-#define os_free(s)   vPortFree(s)
-#define os_malloc(s) pvPortMalloc(s)
-#else
-#include <mem.h>
-#endif
-
 #include "rboot-api.h"
 
 #ifdef __cplusplus
@@ -49,12 +41,12 @@ rboot_config ICACHE_FLASH_ATTR rboot_get_config(void) {
 // updates checksum automatically (if enabled)
 bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf) {
 	uint8_t *buffer;
-	buffer = (uint8_t*)os_malloc(SECTOR_SIZE);
+	buffer = (uint8_t*)pvPortMalloc(SECTOR_SIZE, 0, 0);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
 	}
-	
+
 #ifdef BOOT_CONFIG_CHKSUM
 	conf->chksum = calc_chksum((uint8_t*)conf, (uint8_t*)&conf->chksum);
 #endif
@@ -64,7 +56,7 @@ bool ICACHE_FLASH_ATTR rboot_set_config(rboot_config *conf) {
 	spi_flash_erase_sector(BOOT_CONFIG_SECTOR);
 	spi_flash_write(BOOT_CONFIG_SECTOR * SECTOR_SIZE, (uint32_t*)((void*)buffer), SECTOR_SIZE);
 	
-	os_free(buffer);
+	vPortFree(buffer, 0, 0);
 	return true;
 }
 
@@ -120,7 +112,7 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8_t *da
 	}
 	
 	// get a buffer
-	buffer = (uint8_t *)os_malloc(len + status->extra_count);
+	buffer = (uint8_t *)pvPortMalloc(len + status->extra_count, 0, 0);
 	if (!buffer) {
 		//os_printf("No ram!\r\n");
 		return false;
@@ -158,7 +150,7 @@ bool ICACHE_FLASH_ATTR rboot_write_flash(rboot_write_status *status, uint8_t *da
 		}
 	//}
 
-	os_free(buffer);
+	vPortFree(buffer, 0, 0);
 	return ret;
 }
 
