@@ -13,15 +13,15 @@
 #define UART_CLK_FREQ	(26000000 * 2)
 #endif
 
-static uint32 check_image(uint32 readpos) {
+static uint32_t check_image(uint32_t readpos) {
 
-	uint8 buffer[BUFFER_SIZE];
-	uint8 sectcount;
-	uint8 sectcurrent;
-	uint8 chksum = CHKSUM_INIT;
-	uint32 loop;
-	uint32 remaining;
-	uint32 romaddr;
+	uint8_t buffer[BUFFER_SIZE];
+	uint8_t sectcount;
+	uint8_t sectcurrent;
+	uint8_t chksum = CHKSUM_INIT;
+	uint32_t loop;
+	uint32_t remaining;
+	uint32_t romaddr;
 
 	rom_header_new *header = (rom_header_new*)buffer;
 	section_header *section = (section_header*)buffer;
@@ -78,7 +78,7 @@ static uint32 check_image(uint32 readpos) {
 
 		while (remaining > 0) {
 			// work out how much to read, up to BUFFER_SIZE
-			uint32 readlen = (remaining < BUFFER_SIZE) ? remaining : BUFFER_SIZE;
+			uint32_t readlen = (remaining < BUFFER_SIZE) ? remaining : BUFFER_SIZE;
 			// read the block
 			if (SPIRead(readpos, buffer, readlen) != 0) {
 				return 0;
@@ -128,8 +128,8 @@ static uint32 check_image(uint32 readpos) {
 
 // sample gpio code for gpio16
 #define ETS_UNCACHED_ADDR(addr) (addr)
-#define READ_PERI_REG(addr) (*((volatile uint32 *)ETS_UNCACHED_ADDR(addr)))
-#define WRITE_PERI_REG(addr, val) (*((volatile uint32 *)ETS_UNCACHED_ADDR(addr))) = (uint32)(val)
+#define READ_PERI_REG(addr) (*((volatile uint32_t *)ETS_UNCACHED_ADDR(addr)))
+#define WRITE_PERI_REG(addr, val) (*((volatile uint32_t *)ETS_UNCACHED_ADDR(addr))) = (uint32_t)(val)
 #define PERIPHS_RTC_BASEADDR				0x60000700
 #define REG_RTC_BASE  PERIPHS_RTC_BASEADDR
 #define RTC_GPIO_OUT							(REG_RTC_BASE + 0x068)
@@ -137,14 +137,14 @@ static uint32 check_image(uint32 readpos) {
 #define RTC_GPIO_IN_DATA						(REG_RTC_BASE + 0x08C)
 #define RTC_GPIO_CONF							(REG_RTC_BASE + 0x090)
 #define PAD_XPD_DCDC_CONF						(REG_RTC_BASE + 0x0A0)
-static uint32 get_gpio16(void) {
+static uint32_t get_gpio16(void) {
 	// set output level to 1
-	WRITE_PERI_REG(RTC_GPIO_OUT, (READ_PERI_REG(RTC_GPIO_OUT) & (uint32)0xfffffffe) | (uint32)(1));
+	WRITE_PERI_REG(RTC_GPIO_OUT, (READ_PERI_REG(RTC_GPIO_OUT) & (uint32_t)0xfffffffe) | (uint32_t)(1));
 
 	// read level
-	WRITE_PERI_REG(PAD_XPD_DCDC_CONF, (READ_PERI_REG(PAD_XPD_DCDC_CONF) & 0xffffffbc) | (uint32)0x1);	// mux configuration for XPD_DCDC and rtc_gpio0 connection
-	WRITE_PERI_REG(RTC_GPIO_CONF, (READ_PERI_REG(RTC_GPIO_CONF) & (uint32)0xfffffffe) | (uint32)0x0);	//mux configuration for out enable
-	WRITE_PERI_REG(RTC_GPIO_ENABLE, READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32)0xfffffffe);	//out disable
+	WRITE_PERI_REG(PAD_XPD_DCDC_CONF, (READ_PERI_REG(PAD_XPD_DCDC_CONF) & 0xffffffbc) | (uint32_t)0x1);	// mux configuration for XPD_DCDC and rtc_gpio0 connection
+	WRITE_PERI_REG(RTC_GPIO_CONF, (READ_PERI_REG(RTC_GPIO_CONF) & (uint32_t)0xfffffffe) | (uint32_t)0x0);	//mux configuration for out enable
+	WRITE_PERI_REG(RTC_GPIO_ENABLE, READ_PERI_REG(RTC_GPIO_ENABLE) & (uint32_t)0xfffffffe);	//out disable
 
 	return (READ_PERI_REG(RTC_GPIO_IN_DATA) & 1);
 }
@@ -156,20 +156,20 @@ static uint32 get_gpio16(void) {
 #define REG_IOMUX_BASE           0x60000800
 #define IOMUX_PULLUP_MASK        (1<<7)
 #define IOMUX_FUNC_MASK          0x0130
-const uint8 IOMUX_REG_OFFS[] = {0x34, 0x18, 0x38, 0x14, 0x3c, 0x40, 0x1c, 0x20, 0x24, 0x28, 0x2c, 0x30, 0x04, 0x08, 0x0c, 0x10};
-const uint8 IOMUX_GPIO_FUNC[] = {0x00, 0x30, 0x00, 0x30, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
+const uint8_t IOMUX_REG_OFFS[] = {0x34, 0x18, 0x38, 0x14, 0x3c, 0x40, 0x1c, 0x20, 0x24, 0x28, 0x2c, 0x30, 0x04, 0x08, 0x0c, 0x10};
+const uint8_t IOMUX_GPIO_FUNC[] = {0x00, 0x30, 0x00, 0x30, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
 
 static int get_gpio(int gpio_num) {
 	// disable output buffer if set
-	uint32 old_out = READ_PERI_REG(GPIO_ENABLE_OUT_ADDRESS);
-	uint32 new_out = old_out & ~ (1<<gpio_num);
+	uint32_t old_out = READ_PERI_REG(GPIO_ENABLE_OUT_ADDRESS);
+	uint32_t new_out = old_out & ~ (1<<gpio_num);
 	WRITE_PERI_REG(GPIO_ENABLE_OUT_ADDRESS, new_out);
 
 	// set GPIO function, enable soft pullup
-	uint32 iomux_reg = REG_IOMUX_BASE + IOMUX_REG_OFFS[gpio_num];
-	uint32 old_iomux = READ_PERI_REG(iomux_reg);
-	uint32 gpio_func = IOMUX_GPIO_FUNC[gpio_num];
-	uint32 new_iomux = (old_iomux & ~IOMUX_FUNC_MASK) | gpio_func | IOMUX_PULLUP_MASK;
+	uint32_t iomux_reg = REG_IOMUX_BASE + IOMUX_REG_OFFS[gpio_num];
+	uint32_t old_iomux = READ_PERI_REG(iomux_reg);
+	uint32_t gpio_func = IOMUX_GPIO_FUNC[gpio_num];
+	uint32_t new_iomux = (old_iomux & ~IOMUX_FUNC_MASK) | gpio_func | IOMUX_PULLUP_MASK;
 	WRITE_PERI_REG(iomux_reg, new_iomux);
 
 	// allow soft pullup to take effect if line was floating
@@ -185,7 +185,7 @@ static int get_gpio(int gpio_num) {
 // return '1' if we should do a gpio boot
 static int perform_gpio_boot(rboot_config *romconf) {
 	if (romconf->mode & MODE_GPIO_ROM == 0) {
-		return FALSE;
+		return 0;
 	}
 
 	// pin low == GPIO boot
@@ -199,15 +199,15 @@ static int perform_gpio_boot(rboot_config *romconf) {
 #endif
 
 #ifdef BOOT_RTC_ENABLED
-uint32 system_rtc_mem(int32 addr, void *buff, int32 length, uint32 mode) {
+uint32_t system_rtc_mem(int32_t addr, void *buff, int32_t length, uint32_t mode) {
 
-    int32 blocks;
+    int32_t blocks;
 
     // validate reading a user block
     if (addr < 64) return 0;
     if (buff == 0) return 0;
     // validate 4 byte aligned
-    if (((uint32)buff & 0x3) != 0) return 0;
+    if (((uint32_t)buff & 0x3) != 0) return 0;
     // validate length is multiple of 4
     if ((length & 0x3) != 0) return 0;
 
@@ -216,8 +216,8 @@ uint32 system_rtc_mem(int32 addr, void *buff, int32 length, uint32 mode) {
 
     // copy the data
     for (blocks = (length >> 2) - 1; blocks >= 0; blocks--) {
-        volatile uint32 *ram = ((uint32*)buff) + blocks;
-        volatile uint32 *rtc = ((uint32*)0x60001100) + addr + blocks;
+        volatile uint32_t *ram = ((uint32_t*)buff) + blocks;
+        volatile uint32_t *rtc = ((uint32_t*)0x60001100) + addr + blocks;
 		if (mode == RBOOT_RTC_WRITE) {
 			*rtc = *ram;
 		} else {
@@ -233,7 +233,7 @@ uint32 system_rtc_mem(int32 addr, void *buff, int32 length, uint32 mode) {
 static enum rst_reason get_reset_reason(void) {
 
 	// reset reason is stored @ offset 0 in system rtc memory
-	volatile uint32 *rtc = (uint32*)0x60001100;
+	volatile uint32_t *rtc = (uint32_t*)0x60001100;
 
 	return *rtc;
 }
@@ -242,8 +242,8 @@ static enum rst_reason get_reset_reason(void) {
 #if defined(BOOT_CONFIG_CHKSUM) || defined(BOOT_RTC_ENABLED)
 // calculate checksum for block of data
 // from start up to (but excluding) end
-static uint8 calc_chksum(uint8 *start, uint8 *end) {
-	uint8 chksum = CHKSUM_INIT;
+static uint8_t calc_chksum(uint8_t *start, uint8_t *end) {
+	uint8_t chksum = CHKSUM_INIT;
 	while(start < end) {
 		chksum ^= *start;
 		start++;
@@ -255,7 +255,7 @@ static uint8 calc_chksum(uint8 *start, uint8 *end) {
 #ifndef BOOT_CUSTOM_DEFAULT_CONFIG
 // populate the user fields of the default config
 // created on first boot or in case of corruption
-static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
+static uint8_t default_config(rboot_config *romconf, uint32_t flashsize) {
 	romconf->count = 2;
 	romconf->roms[0] = SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1);
 	romconf->roms[1] = (flashsize / 2) + (SECTOR_SIZE * (BOOT_CONFIG_SECTOR + 1));
@@ -272,23 +272,23 @@ static uint8 default_config(rboot_config *romconf, uint32 flashsize) {
 // to keep main's stack size as small as possible
 // don't mark as static or it'll be optimised out when
 // using the assembler stub
-uint32 NOINLINE find_image(void) {
+uint32_t NOINLINE find_image(void) {
 
-	uint8 flag;
-	uint32 runAddr;
-	uint32 flashsize;
-	int32 romToBoot;
-	uint8 updateConfig = FALSE;
-	uint8 buffer[SECTOR_SIZE];
+	uint8_t flag;
+	uint32_t runAddr;
+	uint32_t flashsize;
+	int32_t romToBoot;
+	uint8_t updateConfig = 0;
+	uint8_t buffer[SECTOR_SIZE];
 #ifdef BOOT_GPIO_ENABLED
-	uint8 gpio_boot = FALSE;
+	uint8_t gpio_boot = 0;
 #endif
 #if defined (BOOT_GPIO_ENABLED) || defined(BOOT_GPIO_SKIP_ENABLED)
-	uint8 sec;
+	uint8_t sec;
 #endif
 #ifdef BOOT_RTC_ENABLED
 	rboot_rtc_data rtc;
-	uint8 temp_boot = FALSE;
+	uint8_t temp_boot = 0;
 #endif
 
 	rboot_config *romconf = (rboot_config*)buffer;
@@ -406,7 +406,7 @@ uint32 NOINLINE find_image(void) {
 	// fresh install or old version?
 	if (romconf->magic != BOOT_CONFIG_MAGIC || romconf->version != BOOT_CONFIG_VERSION
 #ifdef BOOT_CONFIG_CHKSUM
-		|| romconf->chksum != calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum)
+		|| romconf->chksum != calc_chksum((uint8_t*)romconf, (uint8_t*)&romconf->chksum)
 #endif
 		) {
 		// create a default config for a standard 2 rom setup
@@ -416,7 +416,7 @@ uint32 NOINLINE find_image(void) {
 		romconf->version = BOOT_CONFIG_VERSION;
 		default_config(romconf, flashsize);
 #ifdef BOOT_CONFIG_CHKSUM
-		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
+		romconf->chksum = calc_chksum((uint8_t*)romconf, (uint8_t*)&romconf->chksum);
 #endif
 		// write new config sector
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
@@ -429,7 +429,7 @@ uint32 NOINLINE find_image(void) {
 #ifdef BOOT_RTC_ENABLED
 	// if rtc data enabled, check for valid data
 	if (system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_READ) &&
-		(rtc.chksum == calc_chksum((uint8*)&rtc, (uint8*)&rtc.chksum))) {
+		(rtc.chksum == calc_chksum((uint8_t*)&rtc, (uint8_t*)&rtc.chksum))) {
 
 		if (rtc.next_mode & MODE_TEMP_ROM) {
 			if (rtc.temp_rom >= romconf->count) {
@@ -437,7 +437,7 @@ uint32 NOINLINE find_image(void) {
 				return 0;
 			}
 			ets_printf("Booting temp rom.\r\n");
-			temp_boot = TRUE;
+			temp_boot = 1;
 			romToBoot = rtc.temp_rom;
 		}
 	}
@@ -452,7 +452,7 @@ uint32 NOINLINE find_image(void) {
 		}
 		ets_printf("Booting GPIO-selected rom.\r\n");
 		romToBoot = romconf->gpio_rom;
-		gpio_boot = TRUE;
+		gpio_boot = 1;
 #elif defined(BOOT_GPIO_SKIP_ENABLED)
 		romToBoot = romconf->current_rom + 1;
 		if (romToBoot >= romconf->count) {
@@ -460,7 +460,7 @@ uint32 NOINLINE find_image(void) {
 		}
 		romconf->current_rom = romToBoot;
 #endif
-		updateConfig = TRUE;
+		updateConfig = 1;
 		if (romconf->mode & MODE_GPIO_ERASES_SDKCONFIG) {
 			ets_printf("Erasing SDK config sectors before booting.\r\n");
 			for (sec = 1; sec < 5; sec++) {
@@ -477,7 +477,7 @@ uint32 NOINLINE find_image(void) {
 		ets_printf("Invalid rom selected, defaulting to 0.\r\n");
 		romToBoot = 0;
 		romconf->current_rom = 0;
-		updateConfig = TRUE;
+		updateConfig = 1;
 	}
 
 	// check rom is valid
@@ -496,7 +496,7 @@ uint32 NOINLINE find_image(void) {
 		ets_printf("Temp boot rom (%d) is bad.\r\n", romToBoot);
 		// make sure rtc temp boot mode doesn't persist
 		rtc.next_mode = MODE_STANDARD;
-		rtc.chksum = calc_chksum((uint8*)&rtc, (uint8*)&rtc.chksum);
+		rtc.chksum = calc_chksum((uint8_t*)&rtc, (uint8_t*)&rtc.chksum);
 		system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 		return 0;
 	}
@@ -507,7 +507,7 @@ uint32 NOINLINE find_image(void) {
 		ets_printf("Rom %d at %x is bad.\r\n", romToBoot, romconf->roms[romToBoot]);
 		// for normal mode try each previous rom
 		// until we find a good one or run out
-		updateConfig = TRUE;
+		updateConfig = 1;
 		romToBoot--;
 		if (romToBoot < 0) romToBoot = romconf->count - 1;
 		if (romToBoot == romconf->current_rom) {
@@ -522,7 +522,7 @@ uint32 NOINLINE find_image(void) {
 	if (updateConfig) {
 		romconf->current_rom = romToBoot;
 #ifdef BOOT_CONFIG_CHKSUM
-		romconf->chksum = calc_chksum((uint8*)romconf, (uint8*)&romconf->chksum);
+		romconf->chksum = calc_chksum((uint8_t*)romconf, (uint8_t*)&romconf->chksum);
 #endif
 		SPIEraseSector(BOOT_CONFIG_SECTOR);
 		SPIWrite(BOOT_CONFIG_SECTOR * SECTOR_SIZE, buffer, SECTOR_SIZE);
@@ -539,7 +539,7 @@ uint32 NOINLINE find_image(void) {
 #endif
 	rtc.last_rom = romToBoot;
 	rtc.temp_rom = 0;
-	rtc.chksum = calc_chksum((uint8*)&rtc, (uint8*)&rtc.chksum);
+	rtc.chksum = calc_chksum((uint8_t*)&rtc, (uint8_t*)&rtc.chksum);
 	system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 #endif
 
@@ -555,7 +555,7 @@ uint32 NOINLINE find_image(void) {
 
 // small stub method to ensure minimum stack space used
 void call_user_start(void) {
-	uint32 addr;
+	uint32_t addr;
 	stage2a *loader;
 
 	addr = find_image();
