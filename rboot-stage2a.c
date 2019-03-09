@@ -11,11 +11,11 @@
 
 #include "rboot-private.h"
 
-usercode* NOINLINE load_rom(uint32 readpos) {
+usercode* NOINLINE load_rom(uint32_t readpos) {
 	
-	uint8 sectcount;
-	uint8 *writepos;
-	uint32 remaining;
+	uint8_t sectcount;
+	uint8_t *writepos;
+	uint32_t remaining;
 	usercode* usercode;
 	
 	rom_header header;
@@ -41,7 +41,7 @@ usercode* NOINLINE load_rom(uint32 readpos) {
 		
 		while (remaining > 0) {
 			// work out how much to read, up to 16 bytes at a time
-			uint32 readlen = (remaining < READ_SIZE) ? remaining : READ_SIZE;
+			uint32_t readlen = (remaining < READ_SIZE) ? remaining : READ_SIZE;
 			// read the block
 			SPIRead(readpos, writepos, readlen);
 			readpos += readlen;
@@ -57,7 +57,7 @@ usercode* NOINLINE load_rom(uint32 readpos) {
 
 #ifdef BOOT_NO_ASM
 
-void call_user_start(uint32 readpos) {
+void call_user_start(uint32_t readpos) {
 	usercode* user;
 	user = load_rom(readpos);
 	user();
@@ -65,7 +65,7 @@ void call_user_start(uint32 readpos) {
 
 #else
 
-void call_user_start(uint32 readpos) {
+void call_user_start(uint32_t readpos) {
 	__asm volatile (
 		"mov a15, a0\n"     // store return addr, we already splatted a15!
 		"call0 load_rom\n"  // load the rom

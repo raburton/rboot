@@ -19,19 +19,19 @@ extern "C" {
 #endif
 
 extern void Cache_Read_Disable(void);
-extern uint32 SPIRead(uint32, void*, uint32);
+extern uint32_t SPIRead(uint32_t, void*, uint32_t);
 extern void ets_printf(const char*, ...);
-extern void Cache_Read_Enable(uint32, uint32, uint32);
+extern void Cache_Read_Enable(uint32_t, uint32_t, uint32_t);
 
-uint8 rBoot_mmap_1 = 0xff;
-uint8 rBoot_mmap_2 = 0xff;
+uint8_t rBoot_mmap_1 = 0xff;
+uint8_t rBoot_mmap_2 = 0xff;
 
 // this function must remain in iram
 void IRAM_ATTR Cache_Read_Enable_New(void);
 void IRAM_ATTR Cache_Read_Enable_New(void) {
 	
 	if (rBoot_mmap_1 == 0xff) {
-		uint32 val;
+		uint32_t val;
 		rboot_config conf;
 
 		SPIRead(BOOT_CONFIG_SECTOR * SECTOR_SIZE, &conf, sizeof(rboot_config));
