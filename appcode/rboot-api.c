@@ -7,6 +7,8 @@
 //////////////////////////////////////////////////
 
 #include <string.h>
+// c_types.h needed for spi_flash.h
+#include <c_types.h>
 #include <spi_flash.h>
 
 #include "rboot-api.h"
