@@ -323,17 +323,31 @@ uint32 NOINLINE find_image(void) {
 	} else if (flag == 2) {
 		ets_printf("8 Mbit\r\n");
 		flashsize = 0x100000;
-	} else if (flag == 3) {
+	} else if (flag == 3 || flag == 5) {
 		ets_printf("16 Mbit\r\n");
 #ifdef BOOT_BIG_FLASH
 		flashsize = 0x200000;
 #else
 		flashsize = 0x100000; // limit to 8Mbit
 #endif
-	} else if (flag == 4) {
+	} else if (flag == 4 || flag == 6) {
 		ets_printf("32 Mbit\r\n");
 #ifdef BOOT_BIG_FLASH
 		flashsize = 0x400000;
+#else
+		flashsize = 0x100000; // limit to 8Mbit
+#endif
+	} else if (flag == 8) {
+		ets_printf("64 Mbit\r\n");
+#ifdef BOOT_BIG_FLASH
+		flashsize = 0x800000;
+#else
+		flashsize = 0x100000; // limit to 8Mbit
+#endif
+	} else if (flag == 9) {
+		ets_printf("128 Mbit\r\n");
+#ifdef BOOT_BIG_FLASH
+		flashsize = 0x1000000;
 #else
 		flashsize = 0x100000; // limit to 8Mbit
 #endif
@@ -490,7 +504,7 @@ uint32 NOINLINE find_image(void) {
 
 	// check we have a good rom
 	while (runAddr == 0) {
-		ets_printf("Rom %d is bad.\r\n", romToBoot);
+		ets_printf("Rom %d at %x is bad.\r\n", romToBoot, romconf->roms[romToBoot]);
 		// for normal mode try each previous rom
 		// until we find a good one or run out
 		updateConfig = TRUE;
@@ -529,7 +543,7 @@ uint32 NOINLINE find_image(void) {
 	system_rtc_mem(RBOOT_RTC_ADDR, &rtc, sizeof(rboot_rtc_data), RBOOT_RTC_WRITE);
 #endif
 
-	ets_printf("Booting rom %d.\r\n", romToBoot);
+	ets_printf("Booting rom %d at %x, run addr %x.\r\n", romToBoot, romconf->roms[romToBoot], runAddr);
 	// copy the loader to top of iram
 	ets_memcpy((void*)_text_addr, _text_data, _text_len);
 	// return address to load from
