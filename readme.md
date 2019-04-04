@@ -74,16 +74,16 @@ rBoot Config
 ------------
 
 	typedef struct {
-		uint8 magic;           // our magic
-		uint8 version;         // config struct version
-		uint8 mode;            // boot loader mode
-		uint8 current_rom;     // currently selected rom
-		uint8 gpio_rom;        // rom to use for gpio boot
-		uint8 count;           // number of roms in use
-		uint8 unused[2];       // padding
-		uint32 roms[MAX_ROMS]; // flash addresses of the roms
+		uint8_t magic;           // our magic
+		uint8_t version;         // config struct version
+		uint8_t mode;            // boot loader mode
+		uint8_t current_rom;     // currently selected rom
+		uint8_t gpio_rom;        // rom to use for gpio boot
+		uint8_t count;           // number of roms in use
+		uint8_t unused[2];       // padding
+		uint32_t roms[MAX_ROMS]; // flash addresses of the roms
 	#ifdef BOOT_CONFIG_CHKSUM
-		uint8 chksum;          // boot config chksum
+		uint8_t chksum;          // boot config chksum
 	#endif
 	} rboot_config;
 
@@ -104,7 +104,7 @@ Rom addresses must be sector aligned i.e start on a multiple of 4096.
   - `gpio_rom` is the rom to boot when the GPIO is triggered at boot.
   - `count` is the number of roms available (may be less than `MAX_ROMS`, but not
     more).
-  - `unused[2]` is padding so the `uint32` rom addresses are 4 bytes aligned.
+  - `unused[2]` is padding so the `uint32_t` rom addresses are 4 bytes aligned.
   - `roms` is the array of flash address for the roms. The default generated
     config will contain two entries: `0x00002000` and `0x00082000`.
   - `chksum` (if enabled, not by deafult) should be the xor of `0xef` followed by
