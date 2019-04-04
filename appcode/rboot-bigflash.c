@@ -44,17 +44,24 @@ void IRAM_ATTR Cache_Read_Enable_New(void) {
 		// it were bad what should we do anyway? We can't just ignore bad data here, we
 		// need it. But the main reason is that this code must be in iram, which is in
 		// very short supply, doing this "properly" increases the size about 3x
+		// Memory is read is this odd way as we can only access it in 4 byte chunks.
 
 		// used only to calculate offset into structure, should get optimized out
 		rboot_rtc_data rtc;
-		uint8 off = (uint8*)&rtc.last_rom - (uint8*)&rtc;
-		// get the four bytes containing the one of interest
-		volatile uint32 *rtcd = (uint32*)(0x60001100 + (RBOOT_RTC_ADDR*4) + (off & ~3));
-		val = *rtcd;
-		// extract the one of interest
-		val = ((uint8*)&val)[off & 3];
-		// get address of rom
-		val = conf.roms[val];
+		uint8_t off = (uint8_t*)&rtc.last_rom - (uint8_t*)&rtc;
+		// check the magic
+		volatile uint32_t *rtcd = (uint32_t*)(0x60001100 + (RBOOT_RTC_ADDR*4));
+		if (*rtcd != RBOOT_RTC_MAGIC) {
+			val = conf.roms[conf.current_rom];
+		} else {
+			// get the four bytes containing the one of interest
+			rtcd = (uint32_t*)(0x60001100 + (RBOOT_RTC_ADDR*4) + (off & ~3));
+			val = *rtcd;
+			// extract the one of interest
+			val = ((uint8_t*)&val)[off & 3];
+			// get address of rom
+			val = conf.roms[val];
+		}
 #else
 		val = conf.roms[conf.current_rom];
 #endif
