@@ -47,12 +47,12 @@ void IRAM_ATTR Cache_Read_Enable_New(void) {
 
 		// used only to calculate offset into structure, should get optimized out
 		rboot_rtc_data rtc;
-		uint8 off = (uint8*)&rtc.last_rom - (uint8*)&rtc;
+		uint8_t off = (uint8_t*)&rtc.last_rom - (uint8_t*)&rtc;
 		// get the four bytes containing the one of interest
-		volatile uint32 *rtcd = (uint32*)(0x60001100 + (RBOOT_RTC_ADDR*4) + (off & ~3));
+		volatile uint32_t *rtcd = (uint32_t*)(0x60001100 + (RBOOT_RTC_ADDR*4) + (off & ~3));
 		val = *rtcd;
 		// extract the one of interest
-		val = ((uint8*)&val)[off & 3];
+		val = ((uint8_t*)&val)[off & 3];
 		// get address of rom
 		val = conf.roms[val];
 #else
