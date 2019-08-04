@@ -75,6 +75,10 @@ else ifeq ($(SPI_SIZE), 2Mb)
 	E2_OPTS += -2048b
 else ifeq ($(SPI_SIZE), 4M)
 	E2_OPTS += -4096
+else ifeq ($(SPI_SIZE), 8M)
+	E2_OPTS += -8192
+else ifeq ($(SPI_SIZE), 16M)
+	E2_OPTS += -16384
 endif
 ifeq ($(SPI_MODE), qio)
 	E2_OPTS += -qio
